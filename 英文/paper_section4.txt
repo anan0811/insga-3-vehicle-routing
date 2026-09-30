@@ -1,0 +1,292 @@
+﻿================================================================================
+FILE  : paper_section4.txt
+SCOPE : Section 4 — Proposed Algorithm: HNSGA-III
+PAPER : Multi-Objective Optimization of 2E-MD-MD-MP-CVRP-SPD using
+        Hybrid NSGA-III
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+4. PROPOSED ALGORITHM: HNSGA-III
+────────────────────────────────────────────────────────────────────────────────
+
+4.1 Overview
+────────────
+
+This study proposes an Hybrid Non-dominated Sorting Genetic Algorithm III
+(HNSGA-III) to solve the 2E-MD-MD-MP-CVRP-SPD. The algorithm builds upon the
+standard NSGA-III reference-point framework [Deb & Jain, 2014] and introduces
+four targeted enhancements to address the limitations identified in Section 1.3:
+
+  (1) Nearest-Neighbor (NN) initialization to produce geographically structured
+      initial solutions rather than random permutations;
+  (2) Hybrid mutation combining 3-point inversion and 2-point swap operators
+      to balance exploration and exploitation;
+  (3) Embedded 2-opt local search applied to all offspring every generation
+      for fast route-level improvement;
+  (4) Stagnation-triggered Variable Neighborhood Search (VNS) using exchange
+      and relocate operators to escape local optima when convergence stalls.
+
+The algorithm operates on the second-echelon (SE) routing layer, which
+determines customer assignment and sequencing within each satellite–period
+block. The first-echelon (FE) routing between depots and satellites is solved
+exactly using a Gurobi-based MILP solver after the SE routes are finalized.
+
+The overall framework is illustrated in Figure X [flowchart placeholder].
+
+
+4.2 Solution Encoding
+──────────────────────
+
+Each chromosome represents a permutation of customer IDs assigned to a given
+satellite in a given time period (morning or afternoon). Integer encoding is
+adopted: a chromosome of length n is a sequence [c_1, c_2, ..., c_n] where
+each c_i is a unique customer identifier. The depot separators are implicitly
+determined by the vehicle capacity constraint during decoding: the sequence
+is scanned left to right, and a new vehicle route begins whenever the
+cumulative demand would exceed the SE vehicle capacity (400 units).
+
+For a problem with n_s satellites and two daily periods, the algorithm
+maintains 2·n_s independent populations, each of size N_pop = 30.
+Table X summarizes the parameter settings used in all experiments.
+
+  Table X. Algorithm Parameters
+  ─────────────────────────────────────────────────────────────────────
+  Parameter                           Value
+  ─────────────────────────────────────────────────────────────────────
+  Population size (N_pop)             30
+  Number of generations               1,000
+  Crossover probability (cp)
+    — Instances 1–10 (50 customers)   0.70
+    — Instances 11–20 (80 customers)  0.55
+  Mutation probability (mp)
+    — Instances 1–10 (50 customers)   0.70
+    — Instances 11–20 (80 customers)  0.80
+  SE vehicle capacity                 400 kg
+  SE vehicle speed                    50 km/h
+  FE vehicle capacity                 4,000 kg
+  Stagnation threshold (VNS trigger)  5 generations
+  Independent runs per instance       10
+  ─────────────────────────────────────────────────────────────────────
+
+
+4.3 Population Initialization: Nearest-Neighbor Heuristic
+───────────────────────────────────────────────────────────
+
+Standard NSGA-III initializes populations by randomly shuffling customer
+sequences, which disregards geographic structure and produces poor-quality
+starting solutions. HNSGA-III instead adopts a Nearest-Neighbor (NN)
+initialization strategy adapted from Li et al. [2025].
+
+For each individual in the initial population, a random customer is selected
+as the starting point. The algorithm then iteratively appends the nearest
+unvisited customer (by Euclidean distance in the coordinate space) until all
+customers are visited, forming an NN tour. Because each individual uses a
+different random starting customer, the N_pop individuals collectively cover
+diverse geographic entry points while each respecting local proximity — a
+balance between quality and diversity that pure random initialization cannot
+achieve.
+
+If the NN procedure generates too many duplicate sequences (a risk for
+small customer sets), the algorithm falls back to random shuffling to fill
+the remaining population slots.
+
+The NN initialization procedure is summarized in Algorithm 1:
+
+  Algorithm 1: NN Initialization for one population
+  ────────────────────────────────────────────────────────────────
+  Input : customer set C, coordinate lookup coord, target size N_pop
+  Output: initial population P
+  ────────────────────────────────────────────────────────────────
+  P ← ∅
+  attempts ← 0
+  while |P| < N_pop and attempts < 30·N_pop do
+      start ← random customer in C
+      seq   ← [start]
+      unvisited ← C \ {start}
+      while unvisited ≠ ∅ do
+          next ← argmin_{u ∈ unvisited} dist(seq.last, u)
+          seq.append(next);  unvisited ← unvisited \ {next}
+      end while
+      if seq ∉ P then  P ← P ∪ {seq}  end if
+      attempts ← attempts + 1
+  end while
+  while |P| < N_pop do  P ← P ∪ {random_shuffle(C)}  end while
+  return P
+  ────────────────────────────────────────────────────────────────
+
+
+4.4 Crossover Operator
+───────────────────────
+
+The Order-Based Crossover (OBX) operator is applied with probability cp.
+Given two parent chromosomes p_1 and p_2:
+
+  (1) Select a random contiguous segment [a, b] from p_1.
+  (2) Copy positions a to b from p_1 directly into offspring c_1 at the
+      same positions.
+  (3) Fill the remaining positions of c_1 with the customers from p_2 in
+      the order they appear in p_2, skipping any already placed.
+  (4) Generate c_2 symmetrically by swapping the roles of p_1 and p_2.
+
+OBX preserves the relative ordering information of both parents while
+ensuring the offspring is a valid permutation (no duplicate or missing
+customers). A permutation repair step is applied after crossover to
+correct any index misalignments arising from the two-echelon routing
+structure.
+
+
+4.5 Hybrid Mutation Operator
+──────────────────────────────
+
+To balance large-scale structural perturbation with fine-grained local
+refinement, HNSGA-III employs a hybrid mutation strategy combining two
+complementary operators, each selected with equal probability (50%) when
+mutation is triggered (probability mp):
+
+  (a) 3-Point Inversion (exploration):
+      Three distinct positions i < j < k are selected at random. The
+      subsequence between positions i and k is reversed. This operator
+      produces macro-level structural changes that facilitate escaping
+      deep local optima.
+
+      Before: [..., c_i, c_{i+1}, ..., c_k, ...]
+      After:  [..., c_k, c_{k-1}, ..., c_i, ...]
+
+  (b) 2-Point Swap (exploitation):
+      Two distinct positions a and b are selected at random and their
+      customers are exchanged. This produces a minimal local change
+      suited for fine-grained neighbourhood refinement.
+
+      Before: [..., c_a, ..., c_b, ...]
+      After:  [..., c_b, ..., c_a, ...]
+
+The dual-operator design allows the algorithm to exhibit large perturbations
+early in the search (when 3-point inversion tends to help more) and
+targeted adjustments later (when 2-point swap is sufficient), without
+requiring any adaptive scheduling mechanism.
+
+
+4.6 Selection: NSGA-III Reference-Point Framework
+───────────────────────────────────────────────────
+
+After crossover and mutation, the combined parent–offspring pool is reduced
+back to N_pop individuals using the NSGA-III selection procedure [Deb & Jain,
+2014]:
+
+  (1) Non-dominated sorting partitions all individuals into fronts
+      F_1, F_2, ... by Pareto dominance.
+  (2) Fronts are admitted to the next generation in rank order until the
+      next front would cause the population to exceed N_pop.
+  (3) For the last (critical) front, reference points uniformly distributed
+      on a normalized hyperplane in the three-objective space are used to
+      select individuals that maximize coverage — preferring individuals
+      associated with under-represented reference points (niching).
+
+This mechanism explicitly maintains a well-distributed set of non-dominated
+solutions across the three-objective Pareto front (cost, vehicle count,
+carbon emissions), avoiding the crowding collapse that afflicts NSGA-II in
+higher-dimensional objective spaces.
+
+
+4.7 Embedded 2-opt Local Search
+─────────────────────────────────
+
+After crossover and mutation generate the offspring pool, HNSGA-III applies
+a 2-opt local search to every offspring individual before the NSGA-III
+selection step. For each offspring:
+
+  (1) Decode the chromosome into a set of vehicle routes respecting
+      the SE capacity constraint.
+  (2) Select one route at random.
+  (3) Select two positions a < b within that route.
+  (4) Reverse the subsequence between a and b.
+  (5) If the improved individual is not a duplicate of any existing
+      individual and has strictly lower cost, replace the original.
+
+Applying 2-opt to all offspring (rather than only to selected elites as in
+Li et al. [2025]) ensures that every newly generated solution receives at
+least one round of route-level improvement before competing in selection.
+This increases the average quality of the candidate pool without introducing
+the overhead of a full VNS at every generation.
+
+
+4.8 Stagnation-Triggered Variable Neighborhood Search
+───────────────────────────────────────────────────────
+
+When the 2-opt local search alone is insufficient to improve the best
+solution over several consecutive generations, the search has likely reached
+a local optimum in the 2-opt neighbourhood. HNSGA-III detects this condition
+via a stagnation counter maintained per satellite–period block: the counter
+increments each generation the best-individual cost does not improve, and
+resets to zero whenever an improvement occurs.
+
+When the counter reaches the stagnation threshold (τ = 5 generations),
+HNSGA-III applies a two-step VNS to the current best individual:
+
+  Step 1 — Exchange: two customers within the same route are selected at
+  random and swapped. This explores a neighborhood disjoint from 2-opt.
+
+  Step 2 — Relocate: one customer is removed from its position and
+  reinserted at a different position within the same route. This can
+  unblock solutions trapped in high-cost subsequences.
+
+If either operator produces a strictly better solution that is not a
+duplicate, it replaces the current best. The stagnation counter then resets.
+This targeted application (only the best individual, only on stagnation)
+avoids excessive exploitation that would harm population diversity.
+
+
+4.9 Complete Algorithm
+───────────────────────
+
+Algorithm 2 presents the complete HNSGA-III procedure.
+
+  Algorithm 2: HNSGA-III for 2E-MD-MD-MP-CVRP-SPD
+  ────────────────────────────────────────────────────────────────────────
+  Input : instance data, parameters (N_pop, cp, mp, τ, num_gen)
+  Output: best SE routes per satellite–period, FE cost
+  ────────────────────────────────────────────────────────────────────────
+  1.  Cluster customers to satellites via K-Means
+  2.  Partition customers into morning / afternoon periods
+  3.  For each satellite s and period t:
+  4.      P_{s,t} ← NN_Initialize(customers_{s,t}, N_pop)    // §4.3
+  5.  stag_{s,t} ← 0  for all s, t
+  6.  for gen = 1 to num_gen do
+  7.      for each population P_{s,t} do
+  8.          best_before ← min cost in P_{s,t}
+  9.          // Crossover
+  10.         if rand() < cp then
+  11.             offspring ← OBX(P_{s,t})                    // §4.4
+  12.         // Mutation
+  13.         offspring ← offspring ∪ HybridMutate(P_{s,t}, mp)  // §4.5
+  14.         // 2-opt on all offspring
+  15.         offspring ← 2-opt(offspring)                    // §4.7
+  16.         // NSGA-III selection
+  17.         P_{s,t} ← NSGA3_Select(P_{s,t} ∪ offspring, N_pop)  // §4.6
+  18.         best_after ← min cost in P_{s,t}
+  19.         // Stagnation tracking
+  20.         if best_after < best_before then
+  21.             stag_{s,t} ← 0
+  22.         else
+  23.             stag_{s,t} ← stag_{s,t} + 1
+  24.         if stag_{s,t} ≥ τ then
+  25.             P_{s,t} ← VNS(P_{s,t})                      // §4.8
+  26.             stag_{s,t} ← 0
+  27.         end if
+  28.     end for
+  29. end for
+  30. Extract best solution from each P_{s,t}
+  31. Compute satellite demands from SE routes
+  32. FE_cost ← Gurobi_MILP(depots, satellites, demands)
+  33. return SE routes, FE_cost
+  ────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+NOTES FOR REVISION
+────────────────────────────────────────────────────────────────────────────────
+- [ ] Insert actual Figure X (algorithm flowchart)
+- [ ] Insert actual Table X number once paper numbering is finalized
+- [ ] Confirm citation format for Deb & Jain [2014] and Li et al. [2025]
+- [ ] Add time complexity discussion if required by target journal
+- [ ] Cross-check parameter table values against TABLE5_HNSGA3.TXT final results
+================================================================================

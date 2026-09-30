@@ -1,0 +1,4 @@
+# 二進位檔：不做換行符號轉換
+*.pdf  binary
+*.png  binary
+*.xlsx binary

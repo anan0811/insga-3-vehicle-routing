@@ -1,0 +1,344 @@
+================================================================================
+FILE  : paper_section2.txt
+SCOPE : Section 2 — Literature Review
+PAPER : Multi-Objective Optimization of 2E-MD-MD-MP-CVRP-SPD using HNSGA-III
+================================================================================
+
+2. Literature Review
+================================================================================
+
+This section reviews research directly relevant to the problem formulation and
+solution methodology of this paper. We organize the review into four themes:
+(2.1) the evolution of two-echelon vehicle routing problems and their extensions;
+(2.2) green vehicle routing and carbon emission modeling; (2.3) multi-objective
+evolutionary algorithms applied to VRP; and (2.4) local search and hybrid
+metaheuristics. The review concludes by identifying the research gap that
+motivates this work.
+
+
+2.1 Two-Echelon Vehicle Routing Problems and Extensions
+────────────────────────────────────────────────────────
+
+The Vehicle Routing Problem (VRP), introduced by Dantzig and Ramser [1], is
+among the most extensively studied combinatorial optimization problems in
+operations research. In urban logistics, the classical single-echelon VRP fails
+to capture the hierarchical structure of modern distribution networks, where
+freight moves from central warehouses through intermediate consolidation points
+before reaching end customers. This observation gave rise to the Two-Echelon
+VRP (2E-VRP), in which large first-echelon (FE) vehicles transport consolidated
+loads from depots to intermediate facilities called satellites, and smaller
+second-echelon (SE) vehicles complete the last-mile delivery to customers.
+
+The foundational mathematical formulations of 2E-VRP were established by
+Perboli et al. [3] and Crainic et al. [4], who proposed exact branch-and-cut
+methods applicable to small-scale instances. Subsequent surveys, notably Sluijk
+et al. [2], systematically categorized 2E-VRP variants and demonstrated the
+broad applicability of this two-tier structure across freight consolidation,
+parcel delivery, and humanitarian logistics. A key challenge identified in these
+surveys is the combinatorial explosion arising from the interdependence between
+echelon-level decisions: the choice of which customers to assign to which
+satellite directly determines the demand profile that FE vehicles must serve,
+creating a tightly coupled bi-level optimization structure.
+
+A practically important extension is the integration of simultaneous pickup and
+delivery (SPD), in which SE vehicles both deliver goods to and collect goods
+from customers on the same route. The 2E-CVRP-SPD formulation captures the
+operational reality of reverse logistics, where product returns and pickups occur
+alongside standard deliveries. Belgin et al. [7] proposed one of the first
+exact models for 2E-CVRP-SPD and demonstrated the difficulty of the problem
+even for moderate instance sizes. Zhou et al. [8] extended this framework by
+incorporating time window constraints, showing that SPD feasibility under
+capacity constraints requires careful load tracking across each route segment.
+Li et al. [10] further investigated 2E-VRP-SPD with stochastic demand, using
+a robust optimization approach to handle demand uncertainty in the SE layer.
+Collectively, these works establish that the SPD constraint introduces a
+fundamentally different load evolution compared to delivery-only VRP, requiring
+explicit modeling of cumulative load at each node to verify feasibility.
+
+The multi-depot extension of 2E-VRP (MD-2E-VRP) recognizes that real logistics
+networks often feature multiple warehouses or distribution centers serving
+overlapping geographic areas. Kancharla and Ramadurai [17] formulated a
+multi-depot two-echelon problem for urban freight and showed that coordinated
+satellite selection significantly reduces total transportation cost compared to
+single-depot solutions. Zhou et al. [18] addressed the MD-2E-VRP with time
+windows using a hybrid genetic algorithm, demonstrating that the added depot-
+satellite assignment decisions substantially increase solution complexity.
+Studies on collaborative multi-depot routing [44] further highlight that
+allowing vehicles from different depots to share satellites can yield cost
+reductions of 5–15% relative to independently operated depot systems.
+
+The multi-period dimension extends VRP planning horizons from a single day to
+multiple days, enabling the optimization of customer frequency and vehicle
+utilization across time. Mourgaya and Vanderbeck [21] introduced a column
+generation approach for multi-period VRP that partitioned customers into groups
+served on different days, reducing per-day route length while maintaining service
+frequency requirements. Wen et al. [22] developed a multi-period two-echelon
+model for city logistics and showed that multi-day coordination at the satellite
+level allows more consistent FE vehicle load utilization. Incorporating multiple
+service periods within each day—as in our formulation—further increases the
+degree of freedom by allowing the system to shift demand between morning and
+afternoon slots when route congestion or capacity issues arise.
+
+The combination of multi-depot, multi-day, multi-period, and SPD constraints
+into a single unified problem formulation is relatively rare in the literature.
+Wang et al. [32] addressed a multi-depot multi-period 2E-VRP for cold-chain
+logistics, coupling temperature control constraints with period-level planning,
+while Wang et al. [36] extended this to include collaborative satellite sharing
+across planning periods. However, to our knowledge, no prior work simultaneously
+addresses all five characteristics — two-echelon structure, multiple depots,
+multi-day multi-period horizon, SPD, and three-objective optimization — as
+captured in the 2E-MD-MD-MP-CVRP-SPD formulation of this study.
+
+
+2.2 Green Vehicle Routing and Carbon Emission Modeling
+───────────────────────────────────────────────────────
+
+The transportation sector accounts for approximately 23% of global CO₂
+emissions (IEA, 2022), and logistics operations constitute a substantial share
+of this total. The growing pressure from environmental regulations, carbon
+taxation, and corporate sustainability commitments has elevated green vehicle
+routing — which explicitly incorporates emission objectives into the route
+optimization framework — to a mainstream research agenda.
+
+Early green VRP models relied on simple fuel consumption proxies, typically
+treating emissions as proportional to distance traveled. More sophisticated
+emission models account for the nonlinear dependence of fuel consumption and
+emissions on vehicle speed and payload. The MEET model (Methodologies for
+Estimating Air Pollutant Emissions from Transport) [26], developed by the
+European Commission, provides a comprehensive multi-component emission
+estimation framework widely adopted in logistics research. The MEET model
+decomposes vehicle emissions into three speed-dependent components: the base
+emission rate function φ(v), the load correction function ψ(v), and the road
+slope correction function r(v). For a 3.5-ton box truck — the representative
+vehicle class for urban last-mile delivery — the MEET model yields polynomial
+relationships in vehicle speed, allowing efficient computation of per-arc
+emissions given route speed and load profile [26]. Li et al. [43] applied
+the MEET model to a multi-objective green VRP with time windows (MOGVRPTW),
+demonstrating that MEET-based emission objectives produce qualitatively
+different Pareto frontiers compared to simple distance-based proxies, because
+the load correction factor creates interactions between vehicle load and emission
+rate that pure distance models cannot capture.
+
+Green two-echelon VRP research has grown substantially in recent years. Jepsen
+et al. [45] introduced a green 2E-VRP model incorporating satellite opening
+costs and emission constraints for city freight, demonstrating that the choice
+of satellite locations significantly influences the emission profile of both
+echelons. Studies on hybrid-fleet 2E-VRP [46] have shown that substituting
+conventional diesel vehicles with electric vehicles at the SE layer can reduce
+urban emissions by 30–60%, though battery capacity constraints introduce
+additional routing complexity. For the SE layer operating in urban environments,
+fixed travel speed assumptions (as in our formulation) are common and empirically
+justified: Li et al. [43] adopted a fixed SE speed of 50 km/h based on urban
+delivery practices, which collapses the MEET emission function to a load-
+dependent constant per unit distance. This simplification maintains emission
+sensitivity to vehicle load while avoiding the need to model speed profiles on
+individual arcs.
+
+Multi-objective green VRP formulations typically include transportation cost and
+emission minimization as competing objectives, since aggressive emission
+reduction often requires route detours or additional vehicles that raise cost.
+Several studies have demonstrated that Pareto-optimal trade-off frontiers between
+these two objectives are non-trivial and contain solutions qualitatively superior
+to single-objective optima [45, 47]. Including vehicle count as an additional
+minimization objective — as in our three-objective formulation — further enriches
+the decision space, since reducing the fleet size simultaneously lowers fixed
+vehicle costs and can improve per-vehicle load utilization, though it may
+increase per-vehicle route length and thus per-vehicle emissions.
+
+
+2.3 Multi-Objective Evolutionary Algorithms for VRP
+─────────────────────────────────────────────────────
+
+Multi-objective evolutionary algorithms (MOEAs) are the dominant solution
+paradigm for VRP problems with multiple competing objectives, owing to their
+ability to maintain a diverse population of non-dominated solutions and
+approximate the Pareto front in a single optimization run. NSGA-II (Non-
+dominated Sorting Genetic Algorithm II), proposed by Deb et al. [42], introduced
+fast non-dominated sorting and crowding-distance-based selection and became the
+reference MOEA for VRP applications throughout the 2000s and 2010s. NSGA-II
+has been successfully applied to variants of green VRP [47], SPD-VRP [7], and
+multi-depot VRP [17], demonstrating its broad applicability. However, NSGA-II's
+crowding distance mechanism degrades in performance as the number of objectives
+exceeds two, because Euclidean crowding distance becomes a poor proxy for
+diversity in high-dimensional objective spaces.
+
+NSGA-III, proposed by Deb and Jain [41], addresses this limitation by replacing
+crowding distance with structured reference points distributed uniformly on a
+normalized hyperplane in objective space. The reference point mechanism
+explicitly controls diversity across the full extent of the Pareto front and
+scales gracefully to three or more objectives, making NSGA-III the algorithm
+of choice for many-objective optimization problems. For our three-objective
+formulation (cost, vehicle count, emissions), NSGA-III provides a principled
+mechanism to ensure that the returned solution set covers cost-vehicle trade-
+offs, cost-emission trade-offs, and balanced three-way compromise solutions
+simultaneously. Empirical comparisons on multi-objective VRP benchmarks have
+consistently shown that NSGA-III produces broader and more uniformly distributed
+Pareto fronts than NSGA-II when three or more objectives are present [43].
+
+Despite its theoretical advantages, standard NSGA-III exhibits well-documented
+weaknesses when applied to vehicle routing problems. First, random initialization
+produces low-quality initial solutions that require many generations to repair,
+slowing convergence. Second, standard crossover and mutation operators (such as
+OBX or swap mutation) operate at the chromosome level without exploiting the
+geometric structure of routes, limiting the speed of local improvement. Third,
+NSGA-III lacks any explicit mechanism to escape local optima once the population
+converges to a suboptimal region of the Pareto front. These weaknesses have
+motivated a large body of research on improved NSGA-III variants across diverse
+application domains.
+
+Recent NSGA-III enhancements in the literature include transfer learning-based
+initialization (which seeds the population with solutions adapted from related
+problem instances) [48], centroid-distance reference point adaptation [48],
+deep Q-learning guided operator selection [49], co-evolutionary strategies with
+reinforcement learning [50], and adaptive penalty-function mechanisms for
+handling constraints [51]. These improvements share a common motivation:
+augmenting the standard NSGA-III framework with domain-specific knowledge or
+adaptive mechanisms to accelerate convergence without sacrificing Pareto front
+coverage. In the VRP domain, hybrid NSGA-III approaches that embed local search
+within the evolutionary loop have proven particularly effective.
+
+Li et al. [43] proposed the INSGA-III (Improved NSGA-III) for a multi-objective
+green VRP with time windows (MOGVRPTW), incorporating nearest-neighbor
+initialization and a two-opt local search applied selectively to elite individuals.
+Applied to the Solomon benchmark instances with 25–100 customers, INSGA-III
+achieved average cost reductions of 39.4%, 53.1%, 75.3%, and 74.1% relative
+to NSGA-III, NSGA-II, SPEA2, and MOPSO, respectively, while maintaining
+superior Pareto front hypervolume across all three objectives. The work of Li
+et al. [43] provides an important point of departure for our study: the INSGA-III
+framework demonstrates the value of NN initialization and embedded local search
+for VRP, but is limited to a single-depot, single-echelon, single-day setting
+without SPD or multi-period structure. Our HNSGA-III extends this direction to
+the substantially more complex 2E-MD-MD-MP-CVRP-SPD problem by incorporating
+hybrid mutation with a stagnation-triggered VNS, applying 2-opt to all offspring
+(not just elites), and coupling the SE evolutionary optimizer with an exact FE
+MILP solver via Gurobi.
+
+Other relevant NSGA-III applications to VRP-related problems include multi-
+objective scheduling under dynamic constraints [52], flexible job shop routing
+with deep reinforcement learning [49], and resource scheduling for distributed
+systems [53]. While these applications differ in problem structure, they confirm
+the broad utility of NSGA-III as a competitive baseline for complex combinatorial
+multi-objective optimization, and highlight the consistent benefit of embedding
+problem-specific local improvement operators within the NSGA-III selection loop.
+
+
+2.4 Local Search and Hybrid Metaheuristics for VRP
+────────────────────────────────────────────────────
+
+Local search operators play a central role in high-performance VRP metaheuristics,
+providing rapid route-level improvement that genetic operators alone cannot match.
+The 2-opt operator, introduced by Lin [54] for the Traveling Salesman Problem
+(TSP), reverses a segment of a route to eliminate crossing arcs and remains one
+of the most computationally efficient route improvement procedures available.
+In VRP contexts, 2-opt is applied within individual vehicle routes to reduce
+route length without violating capacity constraints. Studies have shown that
+embedding 2-opt within a genetic algorithm's generational cycle — rather than
+applying it only as a post-processing step — consistently improves solution
+quality, as each newly generated offspring undergoes at least one round of local
+refinement before competing in selection [43, 47].
+
+The Or-opt family of operators [55], including relocate (removing a customer
+and reinserting it at a better position) and exchange (swapping two customers
+between positions), extends 2-opt by allowing non-reversal moves. Relocate is
+particularly effective at breaking poor subsequences trapped in local optima of
+the 2-opt neighborhood, since it can move a customer across large route segments
+in a single step. The exchange operator provides fine-grained local adjustment
+at the cost of limited structural change. The combination of exchange and relocate
+in a Variable Neighborhood Search (VNS) framework [56] has proven effective for
+escaping 2-opt local optima: by alternating between neighborhoods of increasing
+size or type, VNS prevents premature convergence while maintaining computational
+tractability.
+
+VNS has been applied successfully to a broad range of VRP variants, including
+the periodic VRP [21], the multi-depot VRP [17], and the two-echelon VRP [4].
+In the hybrid metaheuristic context, VNS is typically triggered reactively —
+either when the incumbent solution has not improved for a specified number of
+iterations (stagnation-triggered VNS) or when the population diversity drops
+below a threshold [56]. The stagnation-triggered approach is computationally
+efficient, as it avoids the overhead of full VNS perturbation in generations
+where the genetic operators are still making progress. This design principle
+directly motivates the HNSGA-III stagnation counter (τ = 5 generations) used
+in this study.
+
+Adaptive Large Neighborhood Search (ALNS), proposed by Ropke and Pisinger [57],
+provides a more general perturbation framework in which multiple destroy-and-
+repair operators are adaptively selected based on their recent historical
+performance. While ALNS has demonstrated strong results on benchmark 2E-VRP
+instances [4], its operator selection overhead and the need to tune adaptive
+weight parameters add implementation complexity relative to the targeted
+exchange-relocate VNS used in this study.
+
+The k-means clustering heuristic has been widely used for customer-satellite
+assignment in multi-satellite routing problems, providing a fast geometric
+partitioning that concentrates customers with similar geographic centroids at
+the same satellite. This reduces inter-satellite travel in the SE layer and
+provides a natural initialization for satellite-level sub-populations in
+population-based algorithms. Our formulation uses k-means clustering as the
+preprocessing step that partitions customers to satellites before HNSGA-III
+begins its generational evolution, consistent with approaches reported for
+multi-satellite 2E-VRP [32, 36].
+
+
+2.5 Research Gap and Positioning
+──────────────────────────────────
+
+The preceding review reveals a clear research gap: while extensive literature
+exists on individual extensions of 2E-VRP (SPD, multi-depot, multi-period,
+green objectives, and MOEA-based solution methods), no prior work simultaneously
+addresses all of the following characteristics in a unified formulation:
+
+  (1) A two-echelon structure with multiple depots and multiple satellites;
+  (2) A multi-day, multi-period planning horizon with period-dependent demand;
+  (3) Simultaneous pickup and delivery at the second echelon;
+  (4) Three competing objectives: total cost, vehicle fleet size, and carbon
+      emissions via the MEET model;
+  (5) A hybrid MOEA that embeds NN initialization, hybrid mutation, 2-opt on
+      all offspring, and stagnation-triggered VNS, coupled with an exact FE
+      solver.
+
+The 2E-MD-MD-MP-CVRP-SPD problem defined in this study closes this gap by
+integrating all five dimensions into a tractable multi-objective optimization
+framework. The HNSGA-III algorithm proposed to solve it synthesizes proven
+techniques — NSGA-III reference-point selection, nearest-neighbor initialization,
+embedded 2-opt, and stagnation-triggered VNS — into a coherent algorithm design
+that directly addresses the four weaknesses of standard NSGA-III identified in
+Section 1.3. The two-tier solution architecture, in which HNSGA-III handles the
+computationally intensive SE routing and Gurobi MILP solves the FE routing
+exactly, further distinguishes this work from purely heuristic approaches and
+enables rigorous per-instance FE optimality verification.
+
+================================================================================
+REFERENCES (to confirm/update when finalizing)
+================================================================================
+[1]  Dantzig & Ramser (1959) — VRP origin
+[2]  Sluijk et al. (2023) — 2E-VRP survey
+[3]  Perboli et al. (2011) — first exact 2E-VRP formulation
+[4]  Crainic et al. (2011) — city consolidation 2E-VRP; ALNS
+[7]  Belgin et al. (2018) — 2E-CVRP-SPD; NSGA-II
+[8]  Zhou et al. (2022) — 2E-VRP-SPD with time windows
+[10] Li et al. (2022) — 2E-VRP-SPD with stochastic demand
+[17] Kancharla & Ramadurai (2019) — multi-depot 2E-VRP
+[18] Zhou et al. (2018) — MD-2E-VRP with time windows; hybrid GA
+[21] Mourgaya & Vanderbeck (2007) — multi-period VRP; column generation
+[22] Wen et al. (2010) — multi-period 2E-VRP
+[26] MEET model report (European Commission) — emission rate formula
+[32] Wang et al. (2021) — MD multi-period 2E-VRP; cold-chain
+[36] Wang et al. (2023) — MD multi-period 2E-VRP; collaborative satellites
+[41] Deb & Jain (2014) — NSGA-III
+[42] Deb et al. (2002) — NSGA-II
+[43] Li et al. (2025, Symmetry 17, 734) — INSGA-III for MOGVRPTW; MEET model
+[44] [Two-echelon collaborative multi-depot multi-period vehicle.pdf] — collaborative MD routing
+[45] [Green Two-Echelon Vehicle Routing Problem with Specialized.pdf] — green 2E-VRP
+[46] Hybrid-fleet / electric SE vehicle studies (to confirm specific cite)
+[47] [Multi-objective Optimization for Green Delivery Routing Problems with Flexible Time Windows.pdf]
+[48] [Improved NSGA-III using transfer learning and centroid distance.pdf]
+[49] [A DQL-NSGA-III algorithm for solving the flexible job shop dynamic.pdf]
+[50] [Co-Evolutionary NSGA-III with deep reinforcement learning for.pdf]
+[51] [An Improved NSGA-III with a Comprehensive Adaptive Penalty.pdf]
+[52] [NSGA-III integrating eliminating strategy and dynamic constraint.pdf]
+[53] [Improved NSGA-III based resource scheduling strategy for Kubernetes.pdf]
+[54] Lin (1965) — 2-opt for TSP
+[55] Or (1976) — Or-opt (relocate, exchange operators)
+[56] Hansen & Mladenović (2001) — VNS framework
+[57] Ropke & Pisinger (2006) — ALNS
+================================================================================

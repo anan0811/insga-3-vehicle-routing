@@ -1,0 +1,10 @@
+\ Model MDVRP_copy
+\ LP format - for model browsing. Use MPS format to capture full model detail.
+Minimize
+ 
+Subject To
+ R8: 4000 X[i,j,k][s0,s0,0] <= -1940
+Bounds
+Binaries
+ X[i,j,k][s0,s0,0]
+End

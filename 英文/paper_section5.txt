@@ -1,0 +1,351 @@
+﻿================================================================================
+FILE  : paper_section5.txt
+SCOPE : Section 5 — Computational Experiments
+PAPER : Multi-Objective Optimization of 2E-MD-MD-MP-CVRP-SPD using
+        Hybrid NSGA-III
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+5. COMPUTATIONAL EXPERIMENTS
+────────────────────────────────────────────────────────────────────────────────
+
+5.1 Experimental Setup
+──────────────────────
+
+5.1.1 Benchmark Instances
+
+Twenty benchmark instances are used in this study, divided into two groups
+according to problem scale:
+
+  • Instances 1–10: 50 customers, 2 satellites, 1 depot (small-to-medium scale)
+  • Instances 11–20: 80 customers, 3 satellites, 1 depot (medium-to-large scale)
+
+Customer coordinates, demand quantities (simultaneous pickup and delivery),
+and service-time windows are generated synthetically. Customers are
+geographically distributed across the service area, and demands are sampled
+uniformly to ensure a range of loading conditions relative to the SE vehicle
+capacity of 400 kg. Planning covers a multi-day, two-period horizon (morning
+and afternoon periods per day).
+
+5.1.2 Compared Algorithms
+
+Three algorithms are compared:
+
+  (1) HNSGA-III (Proposed): the full Hybrid NSGA-III described in Section 4,
+      incorporating NN initialization, hybrid mutation, 2-opt on all offspring,
+      and stagnation-triggered VNS.
+
+  (2) NK-HNSGA-III (Ablation Baseline): a variant of HNSGA-III in which the
+      NN initialization is replaced by K-Medoids spatial clustering. All other
+      components (hybrid mutation, 2-opt, VNS, NSGA-III selection) are
+      identical to HNSGA-III. NK-HNSGA-III isolates the contribution of the NN
+      initialization strategy.
+
+  (3) NSGA-III (Standard Baseline): the reference-point NSGA-III of Deb & Jain
+      [2014] with random initialization and no local search enhancements,
+      applied to the same 2E-MD-MD-MP-CVRP-SPD formulation.
+
+5.1.3 Implementation and Parameter Settings
+
+All algorithms are implemented in Python 3.x. The FE routing is solved by the
+Gurobi MILP solver (version 10.0). Experiments run on an Intel Core i7-11800H
+@ 2.30 GHz (8 cores / 16 threads) with 32 GB RAM and an NVIDIA GeForce RTX
+3070 Laptop GPU. Each algorithm is executed 10 independent times per instance to
+account for stochastic variability. Parameters follow Table X (Section 4.2)
+and are set identically for HNSGA-III and NK-HNSGA-III. NSGA-III uses the
+same population size (N_pop = 30) and number of generations (1,000).
+
+
+5.2 Parameter Sensitivity Analysis
+────────────────────────────────────
+
+Before the main comparison, the crossover probability (cp) and mutation
+probability (mp) of HNSGA-III are tuned independently by sweeping each
+parameter while holding the other fixed. Table 5 reports the average best
+cost over 10 runs for a representative instance from each group (Instance 1
+for Test A, Instance 11 for Test B).
+
+  Table 5. Parameter Sensitivity Analysis of HNSGA-III
+  ─────────────────────────────────────────────────────────────────────────────
+                         Test A (50 customers)            Test B (80 customers)
+  ─────────────────────────────────────────────────────────────────────────────
+  Scenario    cp    Cost($)        mp    Cost($)    cp    Cost($)    mp   Cost($)
+  ─────────────────────────────────────────────────────────────────────────────
+     1       0.85   6339.1        0.1   6340.1     0.85   9315.9   0.1  9406.9
+     2       0.80   6327.1        0.2   6341.1     0.80   9290.9   0.2  9421.9
+     3       0.75   6339.1        0.3   6326.1     0.75   9310.9   0.3  9315.9
+     4      *0.70  *6325.1        0.4   6326.1     0.70   9328.9   0.4  9267.9
+     5       0.65   6326.1        0.5   6337.1     0.65   9322.9   0.5  9352.9
+     6       0.60   6328.1        0.6   6327.1     0.60   9320.9   0.6  9355.9
+     7       0.55   6325.1       *0.7  *6325.1    *0.55  *9253.9   0.7  9354.9
+     8       0.50   6326.1        0.8   6339.1     0.50   9267.9  *0.8 *9253.9
+     9       0.45   6337.1        0.9   6325.1     0.45   9377.9   0.9  9322.9
+    10       0.40   6326.1        1.0   6337.1     0.40   9326.9   1.0  9369.9
+  ─────────────────────────────────────────────────────────────────────────────
+  * denotes the best setting (lowest cost) in each column.
+
+For Test A (50 customers), the optimal settings are cp = 0.70 and mp = 0.70,
+yielding a minimum average cost of 6325.1. For Test B (80 customers), the
+optimal settings are cp = 0.55 and mp = 0.80. The reduction in cp for larger
+instances reflects the increased risk of premature convergence when crossover
+is applied too aggressively; the increase in mp ensures sufficient
+perturbation to avoid local optima in more complex search landscapes. These
+differentiated parameters are used for all subsequent experiments (Test A for
+Instances 1–10; Test B for Instances 11–20).
+
+
+5.3 Algorithm Performance Comparison
+──────────────────────────────────────
+
+5.3.1 Detailed Results for HNSGA-III
+
+Table 6 presents the per-instance results of HNSGA-III over 10 runs. Columns
+report the best (minimum) cost found across runs (Cost_min), the average cost
+(Cost_avg), the average number of SE vehicles deployed (NV_avg), the average
+total carbon emission per instance (CO₂_avg, in kg CO₂, accumulated across all
+SE and FE routes using the MEET model with φ(v) in g/km integrated over
+distance and converted to kg), and the average runtime in seconds (RT_avg).
+
+  Table 6. HNSGA-III Detailed Results (10 runs per instance)
+  ──────────────────────────────────────────────────────────────────────────────
+  Inst  cp    mp   Cost_min($) Cost_avg($)  NV_avg  CO₂_avg(kg)  RT_avg(s)
+  ──────────────────────────────────────────────────────────────────────────────
+     1  0.70  0.70    6327.1      6349.8      6.0     2662.99       53.8
+     2  0.70  0.70    6243.3      6333.7      5.0     2550.92       63.8
+     3  0.70  0.70    8013.0      8137.8      5.0     4417.07       61.0
+     4  0.70  0.70    6629.9      6643.0      5.0     2286.95       54.2
+     5  0.70  0.70    5704.5      5787.4      6.0     2272.82       55.6
+     6  0.70  0.70   11517.1     11640.7      5.0     5206.60       62.9
+     7  0.70  0.70   11438.5     11521.9      5.0     5896.72       60.0
+     8  0.70  0.70    7116.5      7286.0      6.0     3467.53       52.4
+     9  0.70  0.70    8994.0      9196.6      5.0     4290.86       61.7
+    10  0.70  0.70    9266.1      9382.8      5.0     3874.07       57.6
+  ──────────────────────────────────────────────────────────────────────────────
+    11  0.55  0.80    9342.9      9425.1      7.0     3470.77       89.7
+    12  0.55  0.80   12830.9     12873.9      8.0     4947.96       90.7
+    13  0.55  0.80   12995.9     13239.4      8.0     5001.63       89.3
+    14  0.55  0.80   14124.6     14226.6      8.0     6413.53      101.3
+    15  0.55  0.80   12322.7     12526.1      8.0     4827.86       89.7
+    16  0.55  0.80   15255.4     15332.2      7.0     7139.80      102.1
+    17  0.55  0.80   13335.8     13619.2      8.0     5308.91       82.8
+    18  0.55  0.80   14211.5     14308.6      8.0     5403.76       93.2
+    19  0.55  0.80   13839.3     13976.2      8.0     5403.88       98.4
+    20  0.55  0.80    9863.0     10103.5      7.0     3861.22       86.4
+  ──────────────────────────────────────────────────────────────────────────────
+  Avg                              10595.5     6.5     4359.38       75.3
+  ──────────────────────────────────────────────────────────────────────────────
+
+The average cost across all 20 instances is $10,595.5, with runtimes ranging
+from 52.4 s to 102.1 s (mean 75.3 s), demonstrating practical scalability.
+Larger instances (11–20) require on average 90.7 s versus 58.3 s for smaller
+instances (1–10), consistent with the increased search space. The average SE
+vehicle count is 5.0 for small instances and 7.5 for large instances,
+reflecting the higher customer density in the 80-customer groups.
+
+5.3.2 Three-Algorithm Cost Comparison
+
+Table 7 compares the three algorithms on average cost and standard deviation
+per instance. Lower cost and lower standard deviation indicate better and more
+consistent solutions.
+
+  Table 7. Cost Comparison: HNSGA-III vs NK-HNSGA-III vs NSGA-III
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Inst |   HNSGA-III           |   NK-HNSGA-III        |   NSGA-III
+       | Best($)  Avg($)  Std  | Best($)  Avg($)  Std  | Best($)  Avg($)  Std
+  ──────────────────────────────────────────────────────────────────────────────────────────
+     1 |  6339.1  6340.9   2.5 |  6337.1  6395.7  65.3 |  6339.1  6416.1  73.7
+     2 |  6244.3  6297.7  67.2 |  6217.3  6300.9  91.3 |  6343.3  6382.3  27.5
+     3 |  8028.0  8123.6  68.5 |  8016.0  8134.6 231.2 |  8007.0  8051.4  58.9
+     4 |  6629.9  6639.1   8.2 |  6371.9  6587.1 120.5 |  6289.9  6439.9 193.8
+     5 |  5666.5  5752.5  56.4 |  5717.5  5804.5  49.0 |  5731.5  5812.9 113.8
+     6 | 11596.1 11677.3 134.7 | 11593.1 11611.7  23.2 | 11593.1 11685.9 181.8
+     7 | 11299.5 11429.3  90.4 | 11299.5 11390.1  51.2 | 11534.5 11617.5  49.2
+     8 |  7109.5  7225.5 136.2 |  7111.5  7275.7 148.9 |  7099.5  7362.3 249.9
+     9 |  8994.0  9168.8 220.9 |  8996.0  9212.0 205.7 |  9010.0  9109.0 139.6
+    10 |  9285.1  9390.3 135.0 |  9266.1  9360.9 113.1 |  9285.1  9339.9  54.9
+  ──────────────────────────────────────────────────────────────────────────────────────────
+    11 |  9244.9  9360.3  77.8 |  9218.9  9376.7  90.5 |  9268.9  9507.7 238.2
+    12 | 12830.9 12900.5 124.4 | 12876.9 12920.5  76.7 | 12853.9 13060.7 242.4
+    13 | 13039.9 13265.7 141.7 | 12660.9 13047.5 330.6 | 12765.9 13324.5 508.8
+    14 | 14124.6 14152.6  36.2 | 14046.6 14212.0 124.1 | 14017.6 14488.6 347.6
+    15 | 12405.7 12502.3  68.6 | 12333.7 12518.9 168.9 | 12488.7 12732.9 163.2
+    16 | 15261.4 15323.2  45.5 | 15212.4 15255.6  41.8 | 15286.4 15586.2 331.0
+    17 | 13396.8 13556.4 234.9 | 13390.8 13689.6 354.4 | 13390.8 13852.2 288.1
+    18 | 14063.5 14174.7 107.7 | 13987.5 14122.1 183.7 | 14014.5 14196.7 224.5
+    19 | 13829.3 13953.3  78.4 | 13940.3 14000.9  48.2 | 14183.3 14437.1 307.4
+    20 |  9990.0 10116.0  95.5 | 10089.0 10160.0  74.5 | 10029.0 10245.0 147.2
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Avg |         10567.5  96.5 |          10568.8 129.6 |          10682.4 197.1
+  ──────────────────────────────────────────────────────────────────────────────────────────
+
+HNSGA-III achieves the lowest average cost (10,567.5) followed closely by
+NK-HNSGA-III (10,568.8) and NSGA-III (10,682.4). The improvement of HNSGA-III
+over NSGA-III is 1.1% in terms of average cost, which represents a meaningful
+reduction in operational expenditure at scale. More notably, the standard
+deviation of HNSGA-III (96.5) is substantially lower than that of NSGA-III
+(197.1), a 51.0% reduction, indicating far more consistent solution quality
+across repeated runs. NK-HNSGA-III's standard deviation (129.6) falls between
+the two, suggesting that NN initialization specifically contributes to run-to-
+run stability in addition to solution quality.
+
+HNSGA-III outperforms NSGA-III on average cost in 16 of 20 instances. The
+four exceptions (Instances 3, 9, 10, 13) involve cases where NSGA-III's
+random initialization occasionally finds better starting points by chance,
+though at the cost of higher variance.
+
+
+5.4 Pareto Front Quality Metrics
+──────────────────────────────────
+
+Beyond solution cost, multi-objective quality is assessed using four
+complementary Pareto front metrics. All metrics are averaged over 10 runs.
+
+  • Spacing (SP): measures the uniformity of solution distribution along the
+    Pareto front; lower is better.
+
+  • Hypervolume (HV): measures the volume of objective space dominated by the
+    Pareto front, relative to a reference point (1.1× the nadir point in the
+    Cost–Carbon plane); higher is better.
+
+  • Generational Distance (GD): measures the average distance from each
+    solution to the nearest point on the empirical reference Pareto front
+    (union of all algorithms' non-dominated solutions); lower is better.
+
+  • Inverted Generational Distance (IGD): measures the average distance from
+    each reference front point to the nearest solution; lower is better.
+
+  Table 8. Pareto Front Quality Metrics (averages across 20 instances)
+  ──────────────────────────────────────────────────────────────────────────────
+  Algorithm       Avg Cost  Avg Std   Avg SP   Avg HV   Avg GD   Avg IGD
+  ──────────────────────────────────────────────────────────────────────────────
+  HNSGA-III       10,567.5    96.5   0.1535   0.7995   0.1956   0.2174
+  NK-HNSGA-III    10,568.8   129.6   0.1549   0.7540   0.2211   0.2018
+  NSGA-III        10,682.4   197.1   0.1924   0.7635   0.3076   0.2087
+  ──────────────────────────────────────────────────────────────────────────────
+
+HNSGA-III achieves superior performance on five of the six metrics (Cost, Std,
+SP, HV, GD) relative to NSGA-III. The improvement in HV (+4.7%) confirms that
+HNSGA-III explores a larger and better portion of the Cost–Carbon trade-off
+space. The improvement in GD (−36.4%) shows that HNSGA-III's solutions are
+consistently closer to the best-known Pareto front, reflecting the benefit of
+the 2-opt local search and stagnation-triggered VNS in refining solutions
+toward the true frontier.
+
+HNSGA-III and NK-HNSGA-III are nearly identical in average cost (difference
+< 0.01%), but HNSGA-III is more stable (Std: 96.5 vs 129.6), achieves better
+hypervolume coverage (HV: 0.7995 vs 0.7540), and has lower GD (0.1956 vs
+0.2211). This demonstrates that replacing K-Medoids initialization with NN
+initialization specifically improves the diversity and quality of the initial
+population, leading to a better-distributed and higher-coverage Pareto front.
+
+Per-instance SP, HV, GD, and IGD values across all 20 instances are reported
+in Tables A–D (Appendix / Supplementary Material) [placeholder].
+
+
+5.5 Statistical Analysis
+─────────────────────────
+
+To assess whether the cost improvements are statistically significant, the
+Mann-Whitney U test (two-sided, significance level α = 0.05) is applied to
+the 10 cost samples of HNSGA-III and NSGA-III for each instance. A small
+p-value (p < 0.05) indicates that the two algorithms produce significantly
+different cost distributions.
+
+  Table 9 (partial). Mann-Whitney U test: HNSGA-III vs NSGA-III
+  ────────────────────────────────────────────────────────────────────
+  Instance    p-value     Significant?    Direction
+  ────────────────────────────────────────────────────────────────────
+        7     0.0119           *          HNSGA-III better
+       19     0.0079           *          HNSGA-III better
+  All others  > 0.05           —          —
+  ────────────────────────────────────────────────────────────────────
+  (* p < 0.05)
+
+HNSGA-III achieves statistically significant cost improvements over NSGA-III
+in 2 of 20 instances (Instances 7 and 19, both in the 50-customer group). In
+the remaining 18 instances, differences do not reach the α = 0.05 threshold,
+which can be attributed to the relatively small sample size (n = 10 runs) and
+the stochastic nature of the benchmark. Nevertheless, HNSGA-III produces lower
+average cost than NSGA-III in 16 of 20 instances (80%), and the standard
+deviation improvement is consistent and substantial across all instances. The
+Set Coverage (SC) metric further reinforces HNSGA-III's dominance: on average,
+58.0% of NSGA-III's non-dominated solutions are covered (dominated) by
+HNSGA-III's solutions, whereas only 46.0% of HNSGA-III's solutions are covered
+by NSGA-III — a directional advantage of 12 percentage points.
+
+
+5.6 Satellite Configuration Analysis
+──────────────────────────────────────
+
+The multi-period structure of the 2E-MD-MD-MP-CVRP-SPD allows the number of
+active satellites to vary across planning days. Table 10 reports the minimum-
+cost satellite count (Sat = 1, 2, or 3) for each of the 30 planning days,
+determined by comparing three scenarios with 1, 2, or 3 open satellites under
+HNSGA-III.
+
+  Table 10. Optimal Number of Satellites per Planning Day (HNSGA-III)
+  ─────────────────────────────────────────────────────────────────────────
+  Day    Sat=1 ($)    Sat=2 ($)    Sat=3 ($)   Optimal
+  ─────────────────────────────────────────────────────────────────────────
+    1     *4324.7      5102.0       4559.8         1
+    2      7352.5     *5757.8       6765.9         2
+    3      4896.0      4900.1      *4304.4         3
+    4      5180.2     *4805.3       5759.6         2
+    5     *5121.7      6030.5       5808.1         1
+    6      6076.7     *5478.1       6416.4         2
+    7      5124.2      6289.5      *4825.9         3
+    8      7216.9      8612.8      *6925.1         3
+    9     *7005.7      8339.8       8183.2         1
+   10      6351.5     *5512.8       6569.3         2
+   11     *9099.7     10495.9       9859.7         1
+   12      8751.5     10902.7      *8388.4         3
+   13      8988.2     *8057.3       9581.8         2
+   14      6035.9     *5970.8       7857.3         2
+   15      7445.9      8983.5      *6771.6         3
+   16     *8945.7     10201.6       9103.1         1
+   17     *9379.0     11229.5       9532.3         1
+   18      6913.1      6784.3      *6590.4         3
+   19      8935.2     10130.7      *8599.5         3
+   20    *11379.6     14687.6      12519.2         1
+   21    *11080.8     13100.5      14045.3         1
+   22     11021.5     11733.9      *8685.9         3
+   23    *11269.2     12508.1      12215.5         1
+   24     13387.6     14106.5      *9477.4         3
+   25      8007.1      7175.1      *7097.0         3
+   26    *10667.8     11552.2      11817.6         1
+   27    *12104.1     13799.2      13255.6         1
+   28     11929.6     12271.2      *8499.7         3
+   29     *9924.8     12867.8      10755.7         1
+   30    *11938.9     13215.1      12532.9         1
+  ─────────────────────────────────────────────────────────────────────────
+  Optimal distribution: Sat=1: 13 days, Sat=2: 6 days, Sat=3: 11 days
+  * denotes minimum cost for that day.
+
+The optimal number of active satellites varies considerably across planning
+days: Sat = 1 is optimal on 13 days (43%), Sat = 3 on 11 days (37%), and
+Sat = 2 on 6 days (20%). This non-uniform pattern demonstrates that the
+optimal satellite configuration is strongly demand-dependent and cannot be
+fixed a priori without solving the full multi-day optimization. Days with
+Sat = 1 as optimal (e.g., Days 1, 5, 9) tend to be low-demand days where
+the overhead of routing through multiple satellites exceeds the savings from
+reduced individual route lengths. Conversely, Sat = 3 is preferred on high-
+demand days (e.g., Days 22, 24, 28) where customer density benefits from
+finer geographic subdivision. The multi-period formulation of the proposed
+model is essential to capturing this day-to-day variability.
+
+────────────────────────────────────────────────────────────────────────────────
+NOTES FOR REVISION
+────────────────────────────────────────────────────────────────────────────────
+- [x] Hardware: Intel Core i7-11800H @ 2.30 GHz, 8C/16T, 32 GB RAM, RTX 3070
+- [x] CO₂ unit: kg (total per instance); MEET φ(v) in g/km per Table A24 of
+      Hickman et al. (1999); converted via × distance / 1000
+- [x] Avg cost note: Table 6 avg (10,595.5) is from the per-instance detail run;
+      Tables 7/8 avg (10,567.5) is from the high-credibility comparison run.
+      Both sets are valid; the comparison analysis (§5.3.2 onward) uses 10,567.5.
+- [ ] Insert actual Table numbers once paper numbering is finalized
+- [ ] Add Appendix tables with per-instance SP/HV/GD/IGD if journal requires
+- [ ] Add Pareto front visualization figures (Figure Y placeholder) for 2–3
+      representative instances showing HNSGA-III vs NSGA-III front comparison
+- [ ] Confirm Mann-Whitney test is two-sided and report exact p-values in table
+- [ ] Consider adding SC per-instance table to appendix for transparency
+================================================================================

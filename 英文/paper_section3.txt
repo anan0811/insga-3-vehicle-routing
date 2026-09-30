@@ -1,0 +1,347 @@
+================================================================================
+FILE  : paper_section3.txt
+SCOPE : Section 3 — Problem Statement and Mathematical Model
+PAPER : Multi-Objective Optimization of 2E-MD-MD-MP-CVRP-SPD using HNSGA-III
+================================================================================
+
+3. Problem Statement and Mathematical Model
+================================================================================
+
+3.1 Problem Statement
+─────────────────────
+
+The 2E-MD-MD-MP-CVRP-SPD considered in this study is a multi-objective
+logistics optimization problem defined over a two-level distribution network
+comprising multiple depots, multiple satellites, and multiple customers. At the
+first echelon (FE), large-capacity trucks transport consolidated freight from
+depots to satellite facilities. At the second echelon (SE), smaller delivery
+vehicles depart from satellites to serve customers — collecting pickups and
+making deliveries simultaneously on the same route. The planning horizon spans
+multiple days (indexed by t ∈ T), and each day is divided into multiple service
+periods (indexed by p ∈ P, e.g., morning and afternoon), with customer demand
+varying across days and periods.
+
+The system operates as follows:
+  (i)  Each day, customers are clustered to satellites by k-means preprocessing,
+       and each cluster defines an independent SE sub-problem for that period.
+  (ii) For each satellite s and period p, HNSGA-III determines the SE vehicle
+       routes that serve the assigned customers while satisfying capacity and
+       flow constraints.
+  (iii) Once SE routes are fixed, the aggregate delivery and pickup load required
+       at each satellite is computed and passed to a Gurobi MILP solver, which
+       optimizes the FE routing (depot-to-satellite transport) exactly.
+
+Three objectives are minimized simultaneously:
+  f1: Total transportation cost (FE transport cost + SE transport cost +
+      soft time-window penalty cost)
+  f2: Total number of vehicles dispatched across all days and periods
+      (FE trucks + SE vehicles)
+  f3: Total carbon emissions from both echelons, computed via the MEET model
+
+
+3.2 Assumptions
+───────────────
+
+The following assumptions are adopted to ensure mathematical tractability and
+alignment with realistic urban logistics operations:
+
+  (1)  All returned goods collected from customers are temporarily stored at
+       the serving satellite before being sent back to depots.
+  (2)  Each customer has a service time window [a_i^{t,p}, b_i^{t,p}].
+       Vehicles are not required to strictly adhere to this window, but
+       arriving early or late incurs a corresponding penalty cost.
+  (3)  The planning horizon covers multiple operational days, each subdivided
+       into multiple periods; customers may appear at different locations on
+       different days.
+  (4)  Customer locations, delivery demands, and pickup quantities are known
+       for each day and period.
+  (5)  Each depot has sufficient stock capacity to supply all customer demands.
+  (6)  Satellites are not subject to throughput capacity constraints.
+  (7)  The total load (delivery + pickup) on any SE vehicle route must not
+       exceed the vehicle's maximum load capacity Q_SE.
+  (8)  Each SE vehicle route must originate from and return to the same satellite.
+  (9)  Delivery and pickup operations for each customer are performed
+       simultaneously by the same vehicle on the same visit.
+  (10) SE vehicles cannot serve customers assigned to different satellites
+       on a single route.
+  (11) All FE trucks are homogeneous with maximum load capacity Q_FE;
+       any truck may serve any depot-to-satellite arc.
+  (12) All SE vehicles are homogeneous with maximum load capacity Q_SE;
+       SE vehicles travel at fixed speed v_SE = 50 km/h.
+
+
+3.3 Notation
+────────────
+
+All sets, indices, parameters, and decision variables are defined in Table 1
+(see Section3_Notation.xlsx). For reference, the primary symbols used in the
+mathematical model are summarized below.
+
+  Sets:  D (depots), S (satellites), C (customers), T (days), P (periods)
+  Vehicle sets:  K_FE (FE trucks), K_SE (SE vehicles)
+  Node sets:  N_FE = D ∪ S,  N_SE = S ∪ C
+
+  Additional symbols for time windows, deployment binaries, and MEET model:
+
+  Symbol              Description
+  ──────────────────────────────────────────────────────────────────────────
+  L_ij               Distance from node i to node j (km)
+  a_i^{t,p}          Earliest allowable service time for customer i on day t,
+                     period p
+  b_i^{t,p}          Latest allowable service time for customer i on day t,
+                     period p
+  a_d, b_d           Operating time window of depot d
+  a_s^{t,p}          Earliest departure time from satellite s on day t, period p
+  b_s^{t,p}          Latest departure time from satellite s on day t, period p
+  A_i^{k,s,t,p}     Arrival time of SE vehicle k at node i (satellite s,
+                     day t, period p)  [continuous variable]
+  ST_{dr}^t          Departure time of FE truck r from depot d on day t
+  VT_{sr}^t          Arrival time of FE truck r at satellite s on day t
+  ξ_e                Penalty cost per unit time for early arrival (= 0.2 $/min)
+  ξ_l                Penalty cost per unit time for late arrival (= 0.2 $/min)
+  φ(v)               MEET base emission rate function (g/km) for speed v
+  ψ(v)               MEET load correction function for speed v
+  DD_i^{t,p}         Delivery demand of customer i on day t, period p (kg)
+  DP_i^{t,p}         Pickup demand of customer i on day t, period p (kg)
+  DD_s^t             Total delivery demand arriving at satellite s on day t (kg)
+  DP_s^t             Total pickup demand departing satellite s on day t (kg)
+  δ_r^{FE,t}         1 if FE truck r is deployed on day t; 0 otherwise
+  δ_k^{SE,t,p}       1 if SE vehicle k is deployed in period p on day t; 0 otherwise
+
+
+3.4 Mathematical Model
+──────────────────────
+
+3.4.1 Objective Functions
+─────────────────────────
+
+(f1) Total Cost Minimization
+
+The total cost f1 consists of two components: FE transportation cost C_FE and
+SE transportation-plus-penalty cost C_SE.
+
+FE transportation cost includes a distance-proportional term (unit rate
+c_FE = 0.2 $/km) and a per-truck fixed deployment cost (F_r = 80 $ per truck):
+
+  C_FE = Σ_{d∈D} Σ_{s∈N_FE} Σ_{r∈K_FE} Σ_{t∈T}  y_ds^{r,t} · L_ds · c_FE
+         + Σ_{r∈K_FE} Σ_{t∈T}  δ_r^{FE,t} · F_r                            (1)
+
+where c_FE = 0.2 $/km and F_r = 80 $.
+
+SE cost combines a distance-proportional transportation term (unit rate
+c_SE = 0.05 $/km) and soft time-window penalty terms:
+
+  C_SE = Σ_{i,j∈N_SE} Σ_{k∈K_SE} Σ_{s∈S} Σ_{t∈T} Σ_{p∈P}
+           x_ij^{k,s,t,p} · L_ij · c_SE
+         + Σ_{i∈C} Σ_{k∈K_SE} Σ_{s∈S} Σ_{t∈T} Σ_{p∈P}
+           [ξ_e · max(a_i^{t,p} − A_i^{k,s,t,p}, 0)
+            + ξ_l · max(A_i^{k,s,t,p} − b_i^{t,p}, 0)]                      (2)
+
+where c_SE = 0.05 $/km; ξ_e = ξ_l = 0.2 $/min (early and late arrival
+penalty rates, respectively); a_i^{t,p} and b_i^{t,p} are the earliest and
+latest allowable service times for customer i on day t, period p;
+A_i^{k,s,t,p} is the arrival time of SE vehicle k at customer i.
+Morning-period vehicles depart satellite at time 540 min (09:00);
+afternoon-period vehicles depart at 720 min (12:00).
+
+  Min  f1 = C_FE + C_SE                                                       (3)
+
+
+(f2) Total Vehicle Count Minimization
+
+  Min  f2 = Σ_{t∈T} Σ_{p∈P} (Σ_{r∈K_FE} δ_r^{FE,t} + Σ_{k∈K_SE} δ_k^{SE,t,p})  (4)
+
+where δ_r^{FE,t} = 1 if FE truck r is deployed on day t, and δ_k^{SE,t,p} = 1
+if SE vehicle k is deployed in period p on day t.
+
+
+(f3) Total Carbon Emissions Minimization
+
+The MEET (Methodologies for Estimating Air Pollutant Emissions from Transport)
+model [Hickman et al., 1999] is used to compute vehicle carbon emissions. For
+a 3.5-ton box truck traveling at speed v (km/h), the base emission rate
+function φ(v) and the load correction function ψ(v) are adapted from the MEET
+report (Hickman et al., 1999, Tables A10 and A14) as follows:
+
+  φ(v) = 110 + 0.000375 · v³ + 8702/v    (g CO₂/km)                        (5)
+  ψ(v) = 1.27 − 0.00235 · v − 1.33/v                                        (6)
+
+Carbon emission per unit distance is φ(v) · ψ(v) / 1000 (kg CO₂/km). Road
+slope correction is omitted (flat urban terrain). Because SE vehicles travel
+at a fixed speed v_SE = 50 km/h, both functions collapse to constants:
+
+  φ(50) = 110 + 0.000375 × 125000 + 8702/50 = 110 + 46.875 + 174.04 = 330.915 g/km
+  ψ(50) = 1.27 − 0.00235 × 50 − 1.33/50 = 1.27 − 0.1175 − 0.0266 = 1.1259
+  e_SE  = 330.915 × 1.1259 / 1000 ≈ 0.3726 kg CO₂/km
+
+For FE trucks (speed v_FE, determined by instance geography), the per-km
+emission rate e_FE(v_FE) = φ(v_FE) · ψ(v_FE) / 1000 is evaluated at each
+run's FE travel speed.
+
+  E_SE = Σ_{i,j∈N_SE} Σ_{k∈K_SE} Σ_{s∈S} Σ_{t∈T} Σ_{p∈P}
+           x_ij^{k,s,t,p} · L_ij · e_SE                                      (7)
+
+  E_FE = Σ_{(d,s)∈arcs_FE} Σ_{r∈K_FE} Σ_{t∈T}
+           y_ds^{r,t} · L_ds · e_FE(v_FE)                                    (8)
+
+  Min  f3 = E_SE + E_FE                                                       (9)
+
+
+3.4.2 First-Echelon Constraints
+────────────────────────────────
+
+(C1)  Each satellite s must be served at least once per active day:
+
+  Σ_{d∈D} Σ_{r∈K_FE} y_ds^{r,t} ≥ z_s^{t,p},   ∀s∈S, t∈T, p∈P              (11)
+
+(C2)  Flow conservation for FE trucks (each truck that enters a satellite
+      must leave it):
+
+  Σ_{d∈D,s∈S} y_ds^{r,t} − Σ_{s∈S,d∈D} y_sd^{r,t} = 0,   ∀r∈K_FE, t∈T   (12)
+
+(C3)  FE truck capacity: the total delivery and pickup load carried on any
+      depot-to-satellite arc must not exceed Q_FE:
+
+  Σ_{d∈D,s∈S} y_ds^{r,t} · (DD_s^t + DP_s^t) ≤ Q_FE,   ∀r∈K_FE, t∈T    (13)
+
+(C4)  Sub-tour elimination for FE routes (Miller-Tucker-Zemlin auxiliary):
+
+  f_ds^{r,t} ≥ 0,   ∀d∈D, s∈S, r∈K_FE, t∈T                               (14)
+
+  Freight flow balance at satellite s:
+  Σ_{d∈D} f_ds^{r,t} − Σ_{d∈D} f_sd^{r,t} = y_ds^{r,t} · (DD_s^t + DP_s^t)  (15)
+
+(C5)  A satellite s can only be activated (z_s^{t,p} = 1) if at least one FE
+      truck visits it on day t:
+
+  z_s^{t,p} ≤ Σ_{d∈D} Σ_{r∈K_FE} y_ds^{r,t},   ∀s∈S, t∈T, p∈P           (16)
+
+(C6)  FE truck departure time ST_{dr}^t must lie within depot d's operating
+      time window [a_d, b_d]:
+
+  a_d · Σ_{s∈S} y_ds^{r,t} ≤ ST_{dr}^t ≤ b_d · Σ_{s∈S} y_ds^{r,t},
+                                               ∀d∈D, r∈K_FE, t∈T           (17)
+
+(C7)  FE arrival time at satellite s is consistent with departure plus travel:
+
+  ST_{dr}^t + TT_{ds} − M(1 − y_ds^{r,t}) ≤ VT_{sr}^t ≤
+  ST_{dr}^t + TT_{ds} + M(1 − y_ds^{r,t}),  ∀d∈D, s∈S, r∈K_FE, t∈T      (18)
+
+  where TT_{ds} is the travel time from d to s, and M is a sufficiently large
+  constant.
+
+(C8)  Binary and non-negativity constraints:
+
+  y_ds^{r,t} ∈ {0,1},     ∀d∈D, s∈S, r∈K_FE, t∈T                          (19)
+  f_ds^{r,t} ≥ 0,          ∀d∈D, s∈S, r∈K_FE, t∈T                         (20)
+  z_s^{t,p} ∈ {0,1},       ∀s∈S, t∈T, p∈P                                  (21)
+
+
+3.4.3 Second-Echelon Constraints
+──────────────────────────────────
+
+(C9)  Each customer i must be served exactly once per active day t and period p:
+
+  Σ_{j∈N_SE} Σ_{k∈K_SE} x_ij^{k,s,t,p} = 1,   ∀i∈C, s∈S, t∈T, p∈P      (22)
+
+(C10) Flow conservation for SE vehicles at each node:
+
+  Σ_{j∈N_SE} x_ij^{k,s,t,p} − Σ_{j∈N_SE} x_ji^{k,s,t,p} = 0,
+                                 ∀i∈N_SE, k∈K_SE, s∈S, t∈T, p∈P           (23)
+
+(C11) SE vehicle capacity (relaxed SPD formulation): the sum of delivery and
+      pickup demands of all customers visited by vehicle k from satellite s
+      must not exceed Q_SE:
+
+  Σ_{i∈C, j∈N_SE} x_ij^{k,s,t,p} · (DD_i^{t,p} + DP_i^{t,p}) ≤ Q_SE,
+                                         ∀k∈K_SE, s∈S, t∈T, p∈P           (24)
+
+(C12) Each SE vehicle route must start and end at the same satellite s:
+
+  Σ_{j∈C} x_{sj}^{k,s,t,p} = Σ_{j∈C} x_{js}^{k,s,t,p} ≤ 1,
+                                         ∀k∈K_SE, s∈S, t∈T, p∈P           (25)
+
+(C13) Sub-tour elimination (MTZ auxiliary variable u):
+
+  u_i^{k,s,t,p} − u_j^{k,s,t,p} + Q_SE · x_ij^{k,s,t,p} ≤ Q_SE − DD_j^{t,p},
+                                   ∀i,j∈C, k∈K_SE, s∈S, t∈T, p∈P         (26)
+
+  DD_i^{t,p} ≤ u_i^{k,s,t,p} ≤ Q_SE,  ∀i∈C, k∈K_SE, s∈S, t∈T, p∈P      (27)
+
+(C14) SE vehicle arrival time at customer i (MTZ-style time tracking):
+
+  A_j^{k,s,t,p} ≥ A_i^{k,s,t,p} + L_ij / v_SE
+                   − M · (1 − x_ij^{k,s,t,p}),
+                                   ∀i,j∈C, k∈K_SE, s∈S, t∈T, p∈P         (28)
+
+(C15) Satellite time window for SE departure: SE vehicles may only depart
+      satellite s during its active window [a_s^{t,p}, b_s^{t,p}]:
+
+  a_s^{t,p} · Σ_{j∈C} x_{sj}^{k,s,t,p} ≤ A_s^{k,s,t,p}
+              ≤ b_s^{t,p} · Σ_{j∈C} x_{sj}^{k,s,t,p},
+                                         ∀k∈K_SE, s∈S, t∈T, p∈P           (29)
+
+(C16) Binary and non-negativity constraints:
+
+  x_ij^{k,s,t,p} ∈ {0,1},    ∀i,j∈N_SE, k∈K_SE, s∈S, t∈T, p∈P           (30)
+  u_i^{k,s,t,p} ≥ 0,          ∀i∈C, k∈K_SE, s∈S, t∈T, p∈P               (31)
+  A_i^{k,s,t,p} ≥ 0,          ∀i∈N_SE, k∈K_SE, s∈S, t∈T, p∈P            (32)
+
+
+3.5 Model Summary
+──────────────────
+
+The complete formulation is:
+
+  min  { f1, f2, f3 }   subject to  (11)–(32)
+
+Table 2 summarizes the constraint roles:
+
+  Constraint  Role
+  ──────────────────────────────────────────────────────────────────────────
+  (11)        Satellite service coverage
+  (12)        FE flow conservation
+  (13)        FE vehicle capacity (delivery + pickup ≤ Q_FE)
+  (14)–(15)   FE freight flow balance (sub-tour elimination support)
+  (16)        Satellite activation linkage
+  (17)        FE depot time window
+  (18)        FE travel time consistency (depot → satellite)
+  (19)–(21)   FE binary/non-negativity domains
+  (22)        SE customer coverage (each customer served exactly once)
+  (23)        SE flow conservation
+  (24)        SE vehicle capacity (total delivery + pickup ≤ Q_SE)
+  (25)        SE route closure (start and end at same satellite)
+  (26)–(27)   SE sub-tour elimination (MTZ)
+  (28)        SE arrival time consistency
+  (29)        Satellite departure time window for SE
+  (30)–(32)   SE binary/non-negativity domains
+
+The problem is NP-hard: even the single-echelon CVRP is NP-hard, and our
+formulation adds two-echelon structure, multi-day multi-period planning, and
+simultaneous pickup-delivery. For practical instance sizes (50–80 customers,
+2–3 satellites, 2 periods), exact MILP solution of the full model is
+computationally intractable. We therefore adopt the hybrid decomposition
+approach described in Section 4: HNSGA-III solves the SE routing problem,
+and Gurobi MILP solves the FE routing exactly given the SE solution.
+
+================================================================================
+CONFIRMED VALUES (from code inspection, 2026-05-24)
+================================================================================
+  SE unit cost c_SE        = 0.05 $/km          [calculate_time, line 157]
+  FE unit cost c_FE        = 0.2 $/km           [print_route_info, line 99]
+  FE truck fixed cost F_r  = 80 $ per truck     [print_route_info, line 99]
+  Early/late penalty ξ_e=ξ_l = 0.2 $/min       [calculate_time, lines 158-159]
+  Morning period start     = 540 min (09:00)    [evaluate_single_period_fitness]
+  Afternoon period start   = 720 min (12:00)    [evaluate_single_period_fitness]
+  MEET φ(v)  = 110 + 0.000375v³ + 8702/v       [carbon_rate_f, HNSGA3_vrp.py:170]
+  MEET ψ(v)  = 1.27 − 0.00235v − 1.33/v       [load_correction_j, HNSGA3_vrp.py:175]
+  e_SE at v=50 km/h ≈ 0.3726 kg CO₂/km        [computed from above]
+  SPD capacity: relaxed (Σ(DD+DP) ≤ Q_SE)     [update_route, line 406]
+  Satellite activation cost ES = 0              [not present in FE_gurobipy.py]
+  FE routes: multi-stop possible               [extract_routes while-loop]
+  Q_SE = 400 kg, Q_FE = 4000 kg, v_SE = 50    [HNSGA3Algorithm.__init__]
+
+PENDING
+================================================================================
+- [ ] Update all equation numbers once full paper is assembled
+================================================================================

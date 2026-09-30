@@ -1,0 +1,55 @@
+﻿================================================================================
+FILE  : paper_abstract.txt
+SCOPE : Abstract section
+PAPER : Multi-Objective Optimization of 2E-MD-MD-MP-CVRP-SPD using
+        Hybrid NSGA-III
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+ABSTRACT
+────────────────────────────────────────────────────────────────────────────────
+
+This study addresses the two-echelon multi-depot multi-day multi-period
+capacitated vehicle routing problem with simultaneous pickup and delivery
+(2E-MD-MD-MP-CVRP-SPD), a challenging logistics optimization problem that
+simultaneously minimizes total transportation cost, vehicle count, and carbon
+emissions. To solve this three-objective problem, a Hybrid Non-dominated
+Sorting Genetic Algorithm III (HNSGA-III) is proposed, incorporating four
+enhancements over standard NSGA-III: (1) nearest-neighbor (NN) initialization
+for geographically structured starting populations; (2) hybrid mutation
+combining 3-point inversion and 2-point swap operators; (3) embedded 2-opt
+local search applied to all offspring per generation; and (4) stagnation-
+triggered Variable Neighborhood Search (VNS) using exchange and relocate
+operators to escape local optima. Carbon emissions are quantified using the
+MEET (Methodology for calculating Transport Emissions and Energy consumption)
+framework. First-echelon routing is solved exactly via a Gurobi-based MILP
+solver after the second-echelon routes are optimized by HNSGA-III.
+
+Experiments on 20 benchmark instances (50-customer and 80-customer groups,
+10 independent runs each) compare HNSGA-III against NK-HNSGA-III (a K-Medoids
+initialization variant) and standard NSGA-III. HNSGA-III achieves the lowest
+average cost (10,567.5) among all algorithms, outperforming NSGA-III by 1.1%
+while reducing solution variance by 51.0% (Std: 96.5 vs. 197.1). Pareto
+front quality metrics confirm further advantages: HNSGA-III achieves superior
+hypervolume (HV = 0.7995 vs. 0.7635), better solution spacing (SP = 0.1535
+vs. 0.1924), and a 36.4% lower generational distance (GD = 0.1956 vs. 0.3076)
+than NSGA-III. Set coverage analysis shows that 58.0% of NSGA-III's Pareto
+solutions are dominated by HNSGA-III, compared to 46.0% in the reverse
+direction. Statistically significant cost improvements (Mann-Whitney U,
+p < 0.05) are confirmed in 2 of 20 instances. These results demonstrate that
+the proposed HNSGA-III effectively improves solution quality, consistency, and
+Pareto front coverage for large-scale green two-echelon logistics optimization.
+
+Keywords: Two-echelon vehicle routing problem; Multi-objective optimization;
+          NSGA-III; Nearest-neighbor initialization; Variable neighborhood
+          search; Carbon emissions; Hypervolume; Green logistics
+
+────────────────────────────────────────────────────────────────────────────────
+NOTES FOR REVISION
+────────────────────────────────────────────────────────────────────────────────
+- [ ] Verify Gurobi version and confirm MEET model citation
+- [ ] Adjust word count to target journal requirement (current: ~300 words)
+- [ ] Confirm avg cost figures are from HIGH_CREDIBILITY source (10,567.5)
+      vs TABLE6_HNSGA3.TXT (10,595.5) — choose one source consistently
+- [ ] Add journal target and adjust keyword list if required
+================================================================================

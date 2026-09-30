@@ -1,0 +1,251 @@
+Restricted license - for non-production use only - expires 2027-11-29
+
+  Pure NSGA-III Table 6 — 200 tasks, 6 workers
+  Opt sats (TK-BASE): [2, 3, 1, 2, 2, 1, 1, 3, 1, 2, 2, 1, 3, 1, 1, 1, 2, 1, 1, 3]
+  Test A (inst 1-10):  cp=0.65 mp=0.6
+  Test B (inst 11-20): cp=0.8 mp=1.0
+
+  [  1/200] inst=01 run=01  cost=6497.1  NV=6  108.9s  (wall=119s)
+Restricted license - for non-production use only - expires 2027-11-29
+  [  2/200] inst=01 run=04  cost=6537.1  NV=6  109.4s  (wall=119s)
+Restricted license - for non-production use only - expires 2027-11-29
+  [  3/200] inst=01 run=03  cost=6506.1  NV=6  114.7s  (wall=124s)
+Restricted license - for non-production use only - expires 2027-11-29
+  [  4/200] inst=01 run=05  cost=6368.1  NV=6  122.2s  (wall=135s)
+Restricted license - for non-production use only - expires 2027-11-29
+  [  5/200] inst=01 run=02  cost=6520.1  NV=6  130.6s  (wall=142s)
+Restricted license - for non-production use only - expires 2027-11-29
+  [  6/200] inst=01 run=06  cost=6459.1  NV=6  151.0s  (wall=166s)
+  [  7/200] inst=01 run=08  cost=6380.1  NV=6  115.3s  (wall=234s)
+  [  8/200] inst=01 run=09  cost=6573.1  NV=6  111.7s  (wall=235s)
+  [  9/200] inst=01 run=10  cost=6459.1  NV=6  106.3s  (wall=241s)
+  [ 10/200] inst=02 run=01  cost=6212.1  NV=7  117.8s  (wall=259s)
+  [ 11/200] inst=01 run=07  cost=6381.1  NV=6  146.0s  (wall=265s)
+  [ 12/200] inst=02 run=02  cost=6212.1  NV=7  129.8s  (wall=296s)
+  [ 13/200] inst=02 run=05  cost=6212.1  NV=7  117.2s  (wall=358s)
+  [ 14/200] inst=02 run=03  cost=6229.1  NV=7  145.4s  (wall=379s)
+  [ 15/200] inst=02 run=07  cost=6186.1  NV=7  135.6s  (wall=400s)
+  [ 16/200] inst=02 run=04  cost=6228.1  NV=7  184.7s  (wall=420s)
+  [ 17/200] inst=02 run=08  cost=6227.1  NV=7  125.3s  (wall=421s)
+  [ 18/200] inst=02 run=06  cost=6184.1  NV=7  183.7s  (wall=443s)
+  [ 19/200] inst=02 run=09  cost=6223.1  NV=7  135.2s  (wall=493s)
+  [ 20/200] inst=02 run=10  cost=6212.1  NV=7  128.0s  (wall=507s)
+  [ 21/200] inst=03 run=03  cost=6855.3  NV=4  114.1s  (wall=535s)
+  [ 22/200] inst=03 run=02  cost=6818.3  NV=4  119.8s  (wall=540s)
+  [ 23/200] inst=03 run=01  cost=6906.3  NV=4  159.6s  (wall=560s)
+  [ 24/200] inst=03 run=04  cost=6800.3  NV=4  131.2s  (wall=574s)
+  [ 25/200] inst=03 run=05  cost=6892.3  NV=4  131.8s  (wall=625s)
+  [ 26/200] inst=03 run=06  cost=6802.3  NV=4  142.3s  (wall=650s)
+  [ 27/200] inst=03 run=09  cost=6806.3  NV=4  113.7s  (wall=673s)
+  [ 28/200] inst=03 run=07  cost=6844.3  NV=4  139.6s  (wall=675s)
+  [ 29/200] inst=03 run=10  cost=6723.3  NV=4  107.7s  (wall=682s)
+  [ 30/200] inst=03 run=08  cost=6845.3  NV=4  147.0s  (wall=687s)
+  [ 31/200] inst=04 run=01  cost=6685.9  NV=5  107.4s  (wall=732s)
+  [ 32/200] inst=04 run=04  cost=6309.9  NV=5  93.3s  (wall=768s)
+  [ 33/200] inst=04 run=02  cost=6644.9  NV=5  120.6s  (wall=770s)
+  [ 34/200] inst=04 run=03  cost=6279.9  NV=5  111.2s  (wall=785s)
+  [ 35/200] inst=04 run=06  cost=6683.9  NV=5  100.7s  (wall=788s)
+  [ 36/200] inst=04 run=05  cost=6293.9  NV=5  125.3s  (wall=807s)
+  [ 37/200] inst=04 run=07  cost=6671.9  NV=5  90.7s  (wall=823s)
+  [ 38/200] inst=04 run=08  cost=6644.9  NV=5  90.6s  (wall=859s)
+  [ 39/200] inst=04 run=10  cost=6632.9  NV=5  89.3s  (wall=874s)
+  [ 40/200] inst=05 run=01  cost=5620.5  NV=6  97.9s  (wall=885s)
+  [ 41/200] inst=04 run=09  cost=6629.9  NV=5  128.1s  (wall=898s)
+  [ 42/200] inst=05 run=03  cost=5689.5  NV=6  95.9s  (wall=919s)
+  [ 43/200] inst=05 run=02  cost=5798.5  NV=6  117.1s  (wall=924s)
+  [ 44/200] inst=05 run=04  cost=5654.5  NV=6  97.3s  (wall=956s)
+  [ 45/200] inst=05 run=05  cost=5733.5  NV=6  93.0s  (wall=967s)
+  [ 46/200] inst=05 run=06  cost=5689.5  NV=6  112.7s  (wall=998s)
+  [ 47/200] inst=05 run=07  cost=5699.5  NV=6  103.0s  (wall=1001s)
+  [ 48/200] inst=05 run=08  cost=5817.5  NV=6  93.5s  (wall=1013s)
+  [ 49/200] inst=05 run=09  cost=5659.5  NV=6  110.6s  (wall=1035s)
+  [ 50/200] inst=05 run=10  cost=5730.5  NV=6  94.0s  (wall=1050s)
+  [ 51/200] inst=06 run=01  cost=9765.4  NV=5  102.6s  (wall=1070s)
+  [ 52/200] inst=06 run=03  cost=9110.4  NV=5  106.2s  (wall=1108s)
+  [ 53/200] inst=06 run=02  cost=9153.4  NV=5  113.8s  (wall=1112s)
+  [ 54/200] inst=06 run=04  cost=9635.4  NV=5  102.6s  (wall=1115s)
+  [ 55/200] inst=06 run=05  cost=9120.4  NV=5  113.4s  (wall=1148s)
+  [ 56/200] inst=06 run=06  cost=9365.4  NV=5  105.5s  (wall=1155s)
+  [ 57/200] inst=06 run=07  cost=9164.4  NV=5  108.3s  (wall=1178s)
+  [ 58/200] inst=06 run=08  cost=9212.4  NV=5  106.7s  (wall=1214s)
+  [ 59/200] inst=06 run=09  cost=9313.4  NV=5  105.5s  (wall=1217s)
+  [ 60/200] inst=06 run=10  cost=9301.4  NV=5  109.5s  (wall=1225s)
+  [ 61/200] inst=07 run=02  cost=9560.2  NV=5  116.6s  (wall=1272s)
+  [ 62/200] inst=07 run=01  cost=9554.2  NV=5  135.6s  (wall=1284s)
+  [ 63/200] inst=07 run=03  cost=9875.2  NV=5  110.7s  (wall=1289s)
+  [ 64/200] inst=07 run=04  cost=9961.2  NV=5  105.1s  (wall=1319s)
+  [ 65/200] inst=07 run=06  cost=9476.2  NV=5  119.4s  (wall=1344s)
+  [ 66/200] inst=07 run=05  cost=9597.2  NV=5  128.6s  (wall=1346s)
+  [ 67/200] inst=07 run=08  cost=9601.2  NV=5  104.0s  (wall=1388s)
+  [ 68/200] inst=07 run=07  cost=9688.2  NV=5  117.0s  (wall=1389s)
+  [ 69/200] inst=07 run=09  cost=9569.2  NV=5  114.6s  (wall=1403s)
+  [ 70/200] inst=07 run=10  cost=9680.2  NV=5  102.8s  (wall=1422s)
+  [ 71/200] inst=08 run=02  cost=6595.2  NV=7  93.2s  (wall=1439s)
+  [ 72/200] inst=08 run=01  cost=6681.2  NV=7  101.5s  (wall=1446s)
+  [ 73/200] inst=08 run=04  cost=6592.2  NV=7  81.6s  (wall=1471s)
+  [ 74/200] inst=08 run=03  cost=6629.2  NV=7  93.2s  (wall=1481s)
+  [ 75/200] inst=08 run=05  cost=6718.2  NV=7  85.8s  (wall=1489s)
+  [ 76/200] inst=08 run=06  cost=6949.2  NV=7  76.6s  (wall=1499s)
+  [ 77/200] inst=08 run=07  cost=6693.2  NV=7  68.8s  (wall=1508s)
+  [ 78/200] inst=08 run=08  cost=6813.2  NV=7  75.0s  (wall=1521s)
+  [ 79/200] inst=08 run=09  cost=6800.2  NV=7  65.3s  (wall=1536s)
+  [ 80/200] inst=08 run=10  cost=6688.2  NV=7  66.4s  (wall=1548s)
+  [ 81/200] inst=09 run=01  cost=6703.2  NV=5  82.3s  (wall=1571s)
+  [ 82/200] inst=09 run=02  cost=6712.2  NV=5  83.5s  (wall=1583s)
+  [ 83/200] inst=09 run=03  cost=6856.2  NV=5  79.2s  (wall=1587s)
+  [ 84/200] inst=09 run=04  cost=6949.2  NV=5  83.0s  (wall=1604s)
+  [ 85/200] inst=09 run=05  cost=6668.2  NV=5  83.0s  (wall=1619s)
+  [ 86/200] inst=09 run=06  cost=6731.2  NV=5  88.2s  (wall=1636s)
+  [ 87/200] inst=09 run=07  cost=6892.2  NV=5  79.4s  (wall=1651s)
+  [ 88/200] inst=09 run=08  cost=6954.2  NV=5  84.2s  (wall=1667s)
+  [ 89/200] inst=09 run=09  cost=6887.2  NV=5  85.5s  (wall=1673s)
+  [ 90/200] inst=09 run=10  cost=6895.2  NV=5  82.3s  (wall=1686s)
+  [ 91/200] inst=10 run=01  cost=9285.1  NV=5  100.0s  (wall=1719s)
+  [ 92/200] inst=10 run=02  cost=9321.1  NV=5  93.8s  (wall=1730s)
+  [ 93/200] inst=10 run=03  cost=9323.1  NV=5  91.6s  (wall=1742s)
+  [ 94/200] inst=10 run=04  cost=9430.1  NV=5  91.3s  (wall=1758s)
+  [ 95/200] inst=10 run=05  cost=9420.1  NV=5  87.9s  (wall=1761s)
+  [ 96/200] inst=10 run=06  cost=9292.1  NV=5  88.6s  (wall=1774s)
+  [ 97/200] inst=10 run=07  cost=9478.1  NV=5  76.2s  (wall=1795s)
+  [ 98/200] inst=10 run=08  cost=9306.1  NV=5  90.2s  (wall=1820s)
+  [ 99/200] inst=10 run=09  cost=9266.1  NV=5  93.2s  (wall=1836s)
+  [100/200] inst=10 run=10  cost=9302.1  NV=5  90.3s  (wall=1848s)
+  [101/200] inst=11 run=01  cost=8185.3  NV=7  166.4s  (wall=1927s)
+  [102/200] inst=11 run=02  cost=8347.3  NV=7  163.2s  (wall=1938s)
+  [103/200] inst=11 run=03  cost=8152.3  NV=7  159.1s  (wall=1954s)
+  [104/200] inst=11 run=04  cost=8326.3  NV=7  155.5s  (wall=1975s)
+  [105/200] inst=11 run=05  cost=8126.3  NV=7  156.6s  (wall=1992s)
+  [106/200] inst=11 run=06  cost=8301.3  NV=7  153.1s  (wall=2001s)
+  [107/200] inst=11 run=07  cost=8240.3  NV=7  148.9s  (wall=2076s)
+  [108/200] inst=11 run=08  cost=8293.3  NV=7  149.7s  (wall=2087s)
+  [109/200] inst=11 run=09  cost=8162.3  NV=7  143.2s  (wall=2097s)
+  [110/200] inst=11 run=10  cost=8190.3  NV=7  140.5s  (wall=2116s)
+  [111/200] inst=12 run=01  cost=11784.0  NV=6  129.2s  (wall=2121s)
+  [112/200] inst=12 run=02  cost=11564.0  NV=6  131.8s  (wall=2133s)
+  [113/200] inst=12 run=03  cost=11984.0  NV=6  136.3s  (wall=2212s)
+  [114/200] inst=12 run=04  cost=11771.0  NV=6  132.0s  (wall=2219s)
+  [115/200] inst=12 run=05  cost=11834.0  NV=6  130.3s  (wall=2228s)
+  [116/200] inst=12 run=06  cost=11553.0  NV=6  133.2s  (wall=2249s)
+  [117/200] inst=12 run=07  cost=11706.0  NV=6  130.5s  (wall=2252s)
+  [118/200] inst=12 run=08  cost=11834.0  NV=6  139.9s  (wall=2273s)
+  [119/200] inst=12 run=09  cost=11947.0  NV=6  147.5s  (wall=2360s)
+  [120/200] inst=12 run=10  cost=11715.0  NV=6  148.3s  (wall=2368s)
+  [121/200] inst=13 run=01  cost=13161.9  NV=8  168.0s  (wall=2396s)
+  [122/200] inst=13 run=02  cost=12331.9  NV=8  160.7s  (wall=2410s)
+  [123/200] inst=13 run=03  cost=12864.9  NV=8  165.5s  (wall=2417s)
+  [124/200] inst=13 run=04  cost=12441.9  NV=8  165.7s  (wall=2439s)
+  [125/200] inst=13 run=05  cost=12791.9  NV=8  167.8s  (wall=2528s)
+  [126/200] inst=13 run=06  cost=12941.9  NV=8  163.9s  (wall=2531s)
+  [127/200] inst=13 run=07  cost=12503.9  NV=8  167.3s  (wall=2563s)
+  [128/200] inst=13 run=08  cost=12970.9  NV=8  160.3s  (wall=2570s)
+  [129/200] inst=13 run=09  cost=12355.9  NV=8  158.8s  (wall=2576s)
+  [130/200] inst=13 run=10  cost=12684.9  NV=8  164.2s  (wall=2603s)
+  [131/200] inst=14 run=01  cost=14855.4  NV=6  146.8s  (wall=2674s)
+  [132/200] inst=14 run=02  cost=14213.4  NV=6  143.8s  (wall=2675s)
+  [133/200] inst=14 run=03  cost=14954.4  NV=6  142.6s  (wall=2705s)
+  [134/200] inst=14 run=05  cost=14159.4  NV=6  132.6s  (wall=2709s)
+  [135/200] inst=14 run=04  cost=13472.4  NV=6  139.6s  (wall=2709s)
+  [136/200] inst=14 run=06  cost=14323.4  NV=6  142.8s  (wall=2746s)
+  [137/200] inst=14 run=07  cost=14331.4  NV=6  141.3s  (wall=2816s)
+  [138/200] inst=14 run=08  cost=15320.4  NV=6  143.7s  (wall=2819s)
+  [139/200] inst=15 run=01  cost=12400.0  NV=6  134.1s  (wall=2843s)
+  [140/200] inst=14 run=09  cost=14571.4  NV=6  143.9s  (wall=2849s)
+  [141/200] inst=14 run=10  cost=13966.4  NV=6  145.7s  (wall=2854s)
+  [142/200] inst=15 run=02  cost=12750.0  NV=6  138.9s  (wall=2885s)
+  [143/200] inst=15 run=03  cost=12243.0  NV=6  144.0s  (wall=2960s)
+  [144/200] inst=15 run=04  cost=12024.0  NV=6  142.7s  (wall=2962s)
+  [145/200] inst=15 run=05  cost=12032.0  NV=6  146.5s  (wall=2990s)
+  [146/200] inst=15 run=06  cost=12389.0  NV=6  147.5s  (wall=2997s)
+  [147/200] inst=15 run=07  cost=12480.0  NV=6  145.7s  (wall=3000s)
+  [148/200] inst=15 run=08  cost=12157.0  NV=6  147.7s  (wall=3032s)
+  [149/200] inst=15 run=09  cost=12046.0  NV=6  142.8s  (wall=3103s)
+  [150/200] inst=15 run=10  cost=12308.0  NV=6  144.9s  (wall=3106s)
+  [151/200] inst=16 run=02  cost=13538.1  NV=5  149.1s  (wall=3146s)
+  [152/200] inst=16 run=01  cost=13276.1  NV=5  156.1s  (wall=3146s)
+  [153/200] inst=16 run=03  cost=13946.1  NV=5  150.3s  (wall=3150s)
+  [154/200] inst=16 run=04  cost=13572.1  NV=5  146.8s  (wall=3179s)
+  [155/200] inst=16 run=05  cost=13452.1  NV=5  141.5s  (wall=3244s)
+  [156/200] inst=16 run=06  cost=13098.1  NV=5  146.5s  (wall=3253s)
+  [157/200] inst=16 run=07  cost=12873.1  NV=5  142.2s  (wall=3288s)
+  [158/200] inst=16 run=08  cost=13050.1  NV=5  142.3s  (wall=3288s)
+  [159/200] inst=16 run=09  cost=12550.1  NV=5  145.4s  (wall=3296s)
+  [160/200] inst=16 run=10  cost=12215.1  NV=5  142.8s  (wall=3322s)
+  [161/200] inst=17 run=01  cost=12781.6  NV=8  141.9s  (wall=3386s)
+  [162/200] inst=17 run=02  cost=12124.6  NV=8  135.6s  (wall=3389s)
+  [163/200] inst=17 run=03  cost=12109.6  NV=8  129.9s  (wall=3418s)
+  [164/200] inst=17 run=04  cost=13094.6  NV=8  133.1s  (wall=3421s)
+  [165/200] inst=17 run=05  cost=12492.6  NV=8  133.6s  (wall=3430s)
+  [166/200] inst=17 run=06  cost=12213.6  NV=8  138.1s  (wall=3460s)
+  [167/200] inst=17 run=07  cost=12809.6  NV=8  138.3s  (wall=3524s)
+  [168/200] inst=17 run=08  cost=12268.6  NV=8  136.1s  (wall=3525s)
+  [169/200] inst=17 run=09  cost=13424.6  NV=8  134.7s  (wall=3553s)
+  [170/200] inst=17 run=10  cost=13023.6  NV=8  133.3s  (wall=3555s)
+  [171/200] inst=18 run=01  cost=12310.4  NV=6  152.2s  (wall=3582s)
+  [172/200] inst=18 run=02  cost=12704.4  NV=6  153.2s  (wall=3613s)
+  [173/200] inst=18 run=03  cost=12279.4  NV=6  145.6s  (wall=3670s)
+  [174/200] inst=18 run=04  cost=12176.4  NV=6  147.5s  (wall=3672s)
+  [175/200] inst=18 run=06  cost=11725.4  NV=6  140.6s  (wall=3695s)
+  [176/200] inst=18 run=05  cost=12275.4  NV=6  147.3s  (wall=3700s)
+  [177/200] inst=18 run=07  cost=13060.4  NV=6  146.8s  (wall=3729s)
+  [178/200] inst=18 run=08  cost=12166.4  NV=6  143.1s  (wall=3756s)
+  [179/200] inst=18 run=09  cost=12480.4  NV=6  148.5s  (wall=3818s)
+  [180/200] inst=18 run=10  cost=13185.4  NV=6  148.2s  (wall=3820s)
+  [181/200] inst=19 run=01  cost=13622.3  NV=6  137.3s  (wall=3833s)
+  [182/200] inst=19 run=02  cost=12441.3  NV=6  145.8s  (wall=3846s)
+  [183/200] inst=19 run=03  cost=13129.3  NV=6  143.6s  (wall=3872s)
+  [184/200] inst=19 run=04  cost=13374.3  NV=6  153.9s  (wall=3910s)
+  [185/200] inst=19 run=05  cost=12479.3  NV=6  158.8s  (wall=3977s)
+  [186/200] inst=19 run=06  cost=12710.3  NV=6  157.7s  (wall=3978s)
+  [187/200] inst=19 run=07  cost=13019.3  NV=6  160.9s  (wall=3994s)
+  [188/200] inst=19 run=08  cost=13328.3  NV=6  156.2s  (wall=4002s)
+  [189/200] inst=19 run=09  cost=13388.3  NV=6  160.4s  (wall=4032s)
+  [190/200] inst=19 run=10  cost=12966.3  NV=6  150.0s  (wall=4060s)
+  [191/200] inst=20 run=02  cost=10034.0  NV=7  173.1s  (wall=4151s)
+  [192/200] inst=20 run=01  cost=10162.0  NV=7  174.4s  (wall=4151s)
+  [193/200] inst=20 run=03  cost=10102.0  NV=7  167.4s  (wall=4161s)
+  [194/200] inst=20 run=04  cost=10254.0  NV=7  166.6s  (wall=4169s)
+  [195/200] inst=20 run=05  cost=10564.0  NV=7  160.2s  (wall=4193s)
+  [196/200] inst=20 run=06  cost=10120.0  NV=7  147.4s  (wall=4208s)
+  [197/200] inst=20 run=08  cost=9988.0  NV=7  104.6s  (wall=4256s)
+  [198/200] inst=20 run=07  cost=9968.0  NV=7  107.8s  (wall=4259s)
+  [199/200] inst=20 run=09  cost=10101.0  NV=7  102.5s  (wall=4263s)
+  [200/200] inst=20 run=10  cost=10021.0  NV=7  102.4s  (wall=4271s)
+
+  Results -> C:\Users\admin\Desktop\My-paper--main\論文\NSGA-III\Instance_PURE_NSGA3.TXT
+Table 6: Pure NSGA-III Results
+Algorithm: Random init + OX crossover + Inversion mutation + NO VNS
+Selection: NSGA-III reference-point niching
+Opt sats (TK-BASE): [2, 3, 1, 2, 2, 1, 1, 3, 1, 2, 2, 1, 3, 1, 1, 1, 2, 1, 1, 3]
+Test A (inst 1-10):  cp=0.65 mp=0.6
+Test B (inst 11-20): cp=0.8 mp=1.0
+Runs per instance: 10
+------------------------------------------------------------------------
+   Inst   Sat     Cost($)       Std    NV      Carbon    RT(s)
+------------------------------------------------------------------------
+      1     2      6468.1      71.7     6   2647.1740    121.6
+      2     3      6212.6      16.2     7   1838.1554    140.3
+      3     1      6829.4      52.2     4   3902.3915    130.7
+      4     2      6547.8     176.0     5   2296.0159    105.7
+      5     2      5709.3      62.3     6   2277.9418    101.5
+      6     1      9314.2     222.9     5   4205.6525    107.4
+      7     1      9656.3     152.3     5   5073.2608    115.4
+      8     3      6716.0     111.0     7   2735.2915     80.7
+      9     1      6824.9     109.2     5   3344.2470     83.1
+     10     2      9342.4      72.7     5   3885.3893     90.3
+     11     2      8232.5      79.7     7   3593.2284    153.6
+     12     1     11769.2     142.3     6   4679.2689    135.9
+     13     3     12705.0     286.7     8   4999.1902    164.2
+     14     1     14416.8     531.3     6   5824.9952    142.3
+     15     1     12282.9     232.4     6   4907.5187    143.5
+     16     1     13157.1     515.6     5   5062.9910    146.3
+     17     2     12634.3     460.2     8   5062.2552    135.4
+     18     1     12436.4     439.3     6   4643.6334    147.3
+     19     1     13045.9     401.4     6   5285.9755    152.5
+     20     3     10131.4     174.5     7   3856.6975    140.6
+------------------------------------------------------------------------
+    Avg           9721.6     215.5     6   4006.0637    126.9
+------------------------------------------------------------------------
+
+Total wall time: 4272s
+
+  RAW data -> C:\Users\admin\Desktop\My-paper--main\論文\NSGA-III\Instance_PURE_NSGA3_RAW.TXT

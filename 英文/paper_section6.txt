@@ -1,0 +1,178 @@
+================================================================================
+FILE  : paper_section6.txt
+SCOPE : Section 6 — Conclusion
+PAPER : Multi-Objective Optimization of 2E-MD-MD-MP-CVRP-SPD using
+        Hybrid NSGA-III (HNSGA-III)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+6. CONCLUSION
+────────────────────────────────────────────────────────────────────────────────
+
+6.1 Summary of Contributions
+──────────────────────────────
+
+This study addressed the two-echelon multi-depot multi-day multi-period
+capacitated vehicle routing problem with simultaneous pickup and delivery
+(2E-MD-MD-MP-CVRP-SPD), a complex green logistics optimization problem that
+simultaneously minimizes total transportation cost (f1), total vehicle count
+(f2), and total carbon emissions (f3). The problem extends classical two-
+echelon VRP by integrating multiple depots, multiple satellites, multi-day
+multi-period planning horizons, and simultaneous pickup and delivery, making
+exact solution computationally intractable for practical instance sizes.
+
+To solve this three-objective problem, a Hybrid Non-dominated Sorting Genetic
+Algorithm III (HNSGA-III) was proposed. HNSGA-III introduces four targeted
+enhancements over the standard NSGA-III framework:
+
+  (1) Nearest-Neighbor (NN) initialization constructs geographically structured
+      initial chromosomes using different random starting points for each
+      individual, providing a diverse yet high-quality initial population.
+
+  (2) Hybrid mutation combines 3-point inversion (for broad structural
+      exploration) and 2-point swap (for fine-grained local refinement),
+      each selected with equal probability, balancing exploration and
+      exploitation without requiring adaptive scheduling.
+
+  (3) Embedded 2-opt local search is applied to every offspring individual
+      before NSGA-III selection, ensuring each candidate receives at least one
+      round of route-level improvement per generation.
+
+  (4) Stagnation-triggered Variable Neighborhood Search (VNS) applies
+      exchange and relocate operators to the best individual when no
+      improvement occurs for τ = 5 consecutive generations, enabling
+      systematic escape from local optima without disrupting population
+      diversity.
+
+Carbon emissions were quantified using the MEET model (Hickman et al., 1999),
+with base emission rate φ(v) in g/km adapted from Table A24 of the MEET report
+(3.5–7.5 t heavy goods vehicle class) and load correction ψ(v) from Table A14.
+At the fixed SE vehicle speed of 50 km/h, the per-km emission rate collapses
+to the constant e_SE ≈ 0.3726 kg CO₂/km. First-echelon (FE) routing was
+solved exactly via a Gurobi-based MILP solver after the second-echelon (SE)
+routes were optimized by HNSGA-III, enabling a practically scalable hybrid
+decomposition framework.
+
+Computational experiments on 20 benchmark instances (50- and 80-customer
+groups, 10 independent runs each) compared HNSGA-III against NK-HNSGA-III
+(a K-Medoids initialization ablation variant) and standard NSGA-III. The
+key findings are:
+
+  • Cost and stability: HNSGA-III achieves the lowest average cost (10,567.5)
+    among all algorithms, outperforming NSGA-III by 1.1%. More importantly,
+    the solution variance is reduced by 51.0% (Std: 96.5 vs. 197.1), indicating
+    substantially more consistent performance across runs.
+
+  • Pareto front quality: HNSGA-III achieves superior hypervolume (HV = 0.7995
+    vs. 0.7635 for NSGA-III, +4.7%), better solution spacing (SP = 0.1535 vs.
+    0.1924, −20.2%), and 36.4% lower generational distance (GD = 0.1956 vs.
+    0.3076), confirming that HNSGA-III explores a larger and better-distributed
+    portion of the true Pareto frontier.
+
+  • Dominance coverage: Set coverage analysis shows that 58.0% of NSGA-III's
+    non-dominated solutions are dominated by HNSGA-III's solutions, while only
+    46.0% of HNSGA-III's solutions are covered by NSGA-III — a 12-percentage-
+    point directional advantage.
+
+  • Statistical significance: Mann-Whitney U tests confirm statistically
+    significant cost improvements (p < 0.05) in 2 of 20 instances (Instances 7
+    and 19). Although significance does not reach α = 0.05 in the remaining
+    18 instances — attributable to the relatively small sample size (n = 10) —
+    HNSGA-III produces lower average cost in 16 of 20 instances (80%).
+
+  • NN initialization contribution: Comparing HNSGA-III with NK-HNSGA-III
+    isolates the effect of NN initialization. While the two algorithms achieve
+    nearly identical average cost (difference < 0.01%), HNSGA-III's NN
+    initialization yields substantially better run-to-run stability (Std: 96.5
+    vs. 129.6), higher hypervolume (HV: 0.7995 vs. 0.7540), and lower
+    generational distance (GD: 0.1956 vs. 0.2211), demonstrating that NN
+    initialization specifically improves initial population quality and Pareto
+    front coverage.
+
+  • Satellite configuration: Analysis of the optimal number of active satellites
+    per planning day reveals strong demand-dependent variability: Sat = 1 is
+    optimal on 13 of 30 days (43%), Sat = 2 on 6 days (20%), and Sat = 3 on 11
+    days (37%). This confirms that the satellite configuration cannot be fixed
+    a priori, and that the multi-period formulation is essential for capturing
+    day-to-day operational flexibility.
+
+
+6.2 Limitations
+────────────────
+
+Despite the demonstrated improvements, the following limitations should be
+acknowledged:
+
+  (1) Soft time windows: The model adopts soft (penalty-based) time windows
+      rather than hard constraints. In practice, some service-level agreements
+      may require strict adherence to time windows. Extending to hard time
+      windows would alter the feasibility structure and require additional
+      constraint-handling mechanisms.
+
+  (2) Synthetic benchmarks: Experiments rely on synthetically generated
+      instances. Although these cover a range of problem scales and demand
+      conditions, validation on real-world logistics data (e.g., from courier
+      networks or e-commerce last-mile delivery) remains an important step
+      toward practical deployment.
+
+  (3) Sequential decomposition: The FE and SE layers are optimized
+      sequentially rather than jointly. This decomposition, while tractable
+      and practically motivated, may yield suboptimal solutions relative to a
+      fully integrated formulation in cases where FE routing choices strongly
+      affect SE route feasibility or cost.
+
+  (4) Fixed vehicle fleet: The current model assumes a homogeneous and
+      sufficiently large fleet. Incorporating heterogeneous vehicles, fleet
+      sizing decisions, or electric vehicles with range constraints would
+      reflect more realistic logistics scenarios.
+
+  (5) Statistical power: With n = 10 independent runs per instance, the
+      Mann-Whitney test has limited power to detect moderate effect sizes.
+      Increasing the number of runs would yield more reliable significance
+      conclusions.
+
+
+6.3 Future Research Directions
+────────────────────────────────
+
+Building on the findings and limitations of this work, the following directions
+are suggested for future research:
+
+  (1) Hard time-window extension: Adapting HNSGA-III to enforce strict
+      time-window constraints, incorporating penalty-free feasibility repair
+      mechanisms or time-window-aware decoding strategies.
+
+  (2) Real-world validation: Applying the proposed framework to empirical
+      logistics datasets, including urban last-mile delivery networks and
+      multi-echelon supply chain case studies, to assess practical
+      generalizability.
+
+  (3) Joint FE-SE optimization: Developing co-evolutionary or bi-level
+      optimization approaches that simultaneously optimize both echelons,
+      potentially improving solution quality at the cost of higher
+      computational complexity.
+
+  (4) Green vehicle integration: Extending the model to heterogeneous or
+      electric vehicle fleets, incorporating range constraints, charging
+      schedules, and time-varying electricity emission factors to provide a
+      more comprehensive environmental assessment.
+
+  (5) Dynamic and stochastic demand: Incorporating uncertainty in customer
+      demand, travel times, or satellite availability through stochastic
+      programming or robust optimization frameworks, which would better reflect
+      real-world operational conditions.
+
+  (6) Enhanced VNS operators: Exploring additional neighborhood structures
+      within the VNS component (e.g., inter-route exchange, cross-satellite
+      relocation) to broaden the searchable solution space and potentially
+      yield further improvements in Pareto front coverage.
+
+================================================================================
+NOTES FOR REVISION
+================================================================================
+- [ ] Adjust section length to target journal word limit
+- [ ] Cross-check all cited metric values against finalized Section 5 tables
+- [ ] Add reference to specific Figure showing Pareto fronts once figures are
+      inserted (e.g., "As shown in Figure Y, HNSGA-III achieves ...")
+- [ ] Confirm Hickman et al. 1999 citation format matches reference list
+================================================================================

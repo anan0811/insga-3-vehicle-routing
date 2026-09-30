@@ -1,0 +1,141 @@
+================================================================================
+FILE  : Section3_Notation.txt
+SCOPE : Section 3 — Mathematical Notation for 2E-MD-MD-MP-CVRP-SPD Model
+PAPER : Multi-Objective Optimization of 2E-MD-MD-MP-CVRP-SPD using HNSGA-III
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+1. SETS AND INDICES
+────────────────────────────────────────────────────────────────────────────────
+
+  Symbol          Description
+  ────────────────────────────────────────────────────────────────────────────
+  D, d            Set of depots; d is the index
+  S, s            Set of satellites; s is the index
+  C, i, j         Set of customers; i, j are indices
+  T, t            Set of planning days; t is the index
+  P, p            Set of daily service periods (e.g., morning/afternoon); p is the index
+  K_FE, r         Set of first-echelon (FE) vehicles; r is the index
+  K_SE, k         Set of second-echelon (SE) vehicles; k is the index
+  N_FE = D ∪ S    Node set for FE routing (depots + satellites)
+  N_SE = S ∪ C    Node set for SE routing (satellites + customers)
+
+
+────────────────────────────────────────────────────────────────────────────────
+2. PARAMETERS
+────────────────────────────────────────────────────────────────────────────────
+
+  (A) Distance and Travel
+  ────────────────────────────────────────────────────────────────────────────
+  Symbol          Description
+  ────────────────────────────────────────────────────────────────────────────
+  L_ij            Distance from node i to node j (km)
+  v_SE            SE vehicle travel speed (= 50 km/h)
+  v_FE            FE vehicle travel speed (km/h)
+  TT_{ds}         Travel time from depot d to satellite s
+
+  (B) Customer and Satellite Demand
+  ────────────────────────────────────────────────────────────────────────────
+  Symbol          Description
+  ────────────────────────────────────────────────────────────────────────────
+  DD_i^{t,p}      Delivery demand of customer i on day t, period p (kg)
+  DP_i^{t,p}      Pickup demand of customer i on day t, period p (kg)
+  DD_s^t          Total delivery demand at satellite s on day t (kg)
+  DP_s^t          Total pickup demand at satellite s on day t (kg)
+
+  (C) Vehicle Capacity and Cost
+  ────────────────────────────────────────────────────────────────────────────
+  Symbol          Description
+  ────────────────────────────────────────────────────────────────────────────
+  Q_SE            Maximum load capacity of SE vehicle (= 400 kg)
+  Q_FE            Maximum load capacity of FE vehicle (= 4,000 kg)
+  c_SE            Unit transportation cost for SE vehicles (= 0.05 $/km)
+  c_FE            Unit transportation cost for FE vehicles (= 0.2 $/km)
+  F_r             Fixed deployment cost per FE truck (= 80 $)
+
+  (D) MEET Carbon Emission Model
+  ────────────────────────────────────────────────────────────────────────────
+  Symbol          Description
+  ────────────────────────────────────────────────────────────────────────────
+  φ(v)            MEET base emission rate (g/km) at speed v;
+                  φ(v) = 110 + 0.000375·v³ + 8702/v
+  ψ(v)            MEET load correction factor at speed v;
+                  ψ(v) = 1.27 − 0.00235·v − 1.33/v
+                  Unit carbon emission: φ(v)·ψ(v)/1000 (kg CO₂/km)
+  e_SE            SE carbon emission rate at v_SE = 50 km/h (≈ 0.3726 kg CO₂/km)
+
+  (E) Time Windows and Penalties
+  ────────────────────────────────────────────────────────────────────────────
+  Symbol          Description
+  ────────────────────────────────────────────────────────────────────────────
+  a_d, b_d        Operating time window of depot d; FE truck must depart in [a_d, b_d]
+  a_s^{t,p}       Earliest departure time from satellite s on day t, period p
+  b_s^{t,p}       Latest departure time from satellite s on day t, period p
+  a_i^{t,p}       Earliest allowable service time for customer i on day t, period p
+  b_i^{t,p}       Latest allowable service time for customer i on day t, period p
+  ξ_e             Penalty cost per unit time for early arrival (= 0.2 $/min)
+  ξ_l             Penalty cost per unit time for late arrival (= 0.2 $/min)
+
+
+────────────────────────────────────────────────────────────────────────────────
+3. DECISION VARIABLES
+────────────────────────────────────────────────────────────────────────────────
+
+  (A) Second-Echelon (SE) Routing
+  ────────────────────────────────────────────────────────────────────────────
+  Symbol                  Description
+  ────────────────────────────────────────────────────────────────────────────
+  x_ij^{k,s,t,p} ∈ {0,1} 1 if SE vehicle k travels from node i to j
+                          at satellite s, day t, period p; 0 otherwise
+  u_i^{k,s,t,p}           Cumulative load of SE vehicle k upon arriving at
+                          customer i (auxiliary variable for capacity tracking)
+  A_i^{k,s,t,p}           Arrival time of SE vehicle k at node i (satellite s,
+                          day t, period p) [continuous variable]
+
+  (B) First-Echelon (FE) Routing
+  ────────────────────────────────────────────────────────────────────────────
+  Symbol                  Description
+  ────────────────────────────────────────────────────────────────────────────
+  y_ds^{r,t} ∈ {0,1}     1 if FE vehicle r travels from depot d to satellite s
+                          on day t; 0 otherwise
+  f_ds^{r,t}              Freight volume carried by FE vehicle r on arc (d,s) (kg)
+  ST_{dr}^t               Departure time of FE truck r from depot d on day t
+                          [continuous variable]
+  VT_{sr}^t               Arrival time of FE truck r at satellite s on day t
+                          [continuous variable]
+
+  (C) Satellite Activation
+  ────────────────────────────────────────────────────────────────────────────
+  Symbol                  Description
+  ────────────────────────────────────────────────────────────────────────────
+  z_s^{t,p} ∈ {0,1}       1 if satellite s is open on day t, period p; 0 otherwise
+
+  (D) Deployment Binaries
+  ────────────────────────────────────────────────────────────────────────────
+  Symbol                  Description
+  ────────────────────────────────────────────────────────────────────────────
+  δ_r^{FE,t} ∈ {0,1}     1 if FE truck r is deployed on day t; 0 otherwise
+  δ_k^{SE,t,p} ∈ {0,1}   1 if SE vehicle k is deployed in period p on day t;
+                          0 otherwise
+
+
+────────────────────────────────────────────────────────────────────────────────
+4. OBJECTIVE FUNCTIONS
+────────────────────────────────────────────────────────────────────────────────
+
+  Symbol          Description
+  ────────────────────────────────────────────────────────────────────────────
+  f1              Minimize: total transportation cost (FE cost + SE cost)
+  f2              Minimize: total number of vehicles dispatched (FE + SE)
+  f3              Minimize: total carbon emissions (computed via MEET model)
+
+
+================================================================================
+CONFIRMED VALUES (from code inspection, 2026-05-24)
+================================================================================
+  1  Time windows: soft (penalty-based); ξ_e = ξ_l = 0.2 $/min
+  2  MEET: φ(v)·ψ(v)/1000; e_SE ≈ 0.3726 kg CO₂/km at v_SE = 50 km/h
+  3  SPD capacity: relaxed — Σ(DD_i^{t,p} + DP_i^{t,p}) ≤ Q_SE per vehicle route
+  4  Satellite capacity: none (Assumption 6)
+  5  FE trucks: not depot-specific; any r∈K_FE may serve any depot→satellite arc
+================================================================================

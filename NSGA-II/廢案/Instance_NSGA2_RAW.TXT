@@ -1,0 +1,200 @@
+inst=01 run=01 cost=6981.1 NV=6 carbon=2546.9377 elapsed=66.0s
+inst=01 run=02 cost=7005.1 NV=6 carbon=2556.5539 elapsed=65.6s
+inst=01 run=03 cost=7056.1 NV=6 carbon=2542.5413 elapsed=66.3s
+inst=01 run=04 cost=6996.1 NV=6 carbon=2548.7410 elapsed=67.2s
+inst=01 run=05 cost=6979.1 NV=6 carbon=2546.1106 elapsed=65.0s
+inst=01 run=06 cost=7011.1 NV=6 carbon=2509.8141 elapsed=67.1s
+inst=01 run=07 cost=6979.1 NV=6 carbon=2547.1203 elapsed=66.3s
+inst=01 run=08 cost=6932.1 NV=6 carbon=2582.7759 elapsed=68.8s
+inst=01 run=09 cost=6950.1 NV=6 carbon=2565.5442 elapsed=68.5s
+inst=01 run=10 cost=7005.1 NV=6 carbon=2556.5539 elapsed=65.8s
+inst=02 run=01 cost=6483.3 NV=5 carbon=2550.0786 elapsed=74.3s
+inst=02 run=02 cost=6502.3 NV=5 carbon=2581.9563 elapsed=75.5s
+inst=02 run=03 cost=6520.3 NV=5 carbon=2663.5656 elapsed=74.0s
+inst=02 run=04 cost=6437.3 NV=5 carbon=2558.3013 elapsed=74.8s
+inst=02 run=05 cost=6601.3 NV=5 carbon=2519.9520 elapsed=73.2s
+inst=02 run=06 cost=6439.3 NV=5 carbon=2646.4345 elapsed=74.5s
+inst=02 run=07 cost=6549.3 NV=5 carbon=2519.7433 elapsed=74.3s
+inst=02 run=08 cost=6532.3 NV=5 carbon=2549.0912 elapsed=75.3s
+inst=02 run=09 cost=6428.3 NV=5 carbon=2536.5615 elapsed=74.8s
+inst=02 run=10 cost=6484.3 NV=5 carbon=2594.7580 elapsed=74.2s
+inst=03 run=01 cost=8929.0 NV=5 carbon=4341.1689 elapsed=70.4s
+inst=03 run=02 cost=8926.0 NV=5 carbon=4344.2352 elapsed=70.4s
+inst=03 run=03 cost=8680.0 NV=5 carbon=4395.2597 elapsed=70.9s
+inst=03 run=04 cost=8567.0 NV=5 carbon=4285.3643 elapsed=70.8s
+inst=03 run=05 cost=8674.0 NV=5 carbon=4351.0497 elapsed=71.4s
+inst=03 run=06 cost=8627.0 NV=5 carbon=4319.3955 elapsed=71.2s
+inst=03 run=07 cost=8561.0 NV=5 carbon=4307.1824 elapsed=71.3s
+inst=03 run=08 cost=8709.0 NV=5 carbon=4337.7561 elapsed=70.1s
+inst=03 run=09 cost=8629.0 NV=5 carbon=4389.6598 elapsed=69.2s
+inst=03 run=10 cost=8941.0 NV=5 carbon=4343.8068 elapsed=69.9s
+inst=04 run=01 cost=6462.9 NV=5 carbon=2272.2999 elapsed=69.2s
+inst=04 run=02 cost=6433.9 NV=5 carbon=2273.9467 elapsed=70.0s
+inst=04 run=03 cost=6445.9 NV=5 carbon=2285.6084 elapsed=69.9s
+inst=04 run=04 cost=6446.9 NV=5 carbon=2270.5302 elapsed=68.8s
+inst=04 run=05 cost=6433.9 NV=5 carbon=2273.9951 elapsed=69.2s
+inst=04 run=06 cost=6473.9 NV=5 carbon=2279.7291 elapsed=68.5s
+inst=04 run=07 cost=6481.9 NV=5 carbon=2272.2366 elapsed=68.2s
+inst=04 run=08 cost=6451.9 NV=5 carbon=2271.8267 elapsed=69.1s
+inst=04 run=09 cost=6445.9 NV=5 carbon=2270.3290 elapsed=69.7s
+inst=04 run=10 cost=6473.9 NV=5 carbon=2279.7328 elapsed=69.3s
+inst=05 run=01 cost=6098.5 NV=6 carbon=2256.4430 elapsed=68.8s
+inst=05 run=02 cost=6048.5 NV=6 carbon=2249.8447 elapsed=69.1s
+inst=05 run=03 cost=6089.5 NV=6 carbon=2266.0220 elapsed=67.8s
+inst=05 run=04 cost=6088.5 NV=6 carbon=2210.6309 elapsed=67.9s
+inst=05 run=05 cost=5980.5 NV=6 carbon=2300.4779 elapsed=67.0s
+inst=05 run=06 cost=6146.5 NV=6 carbon=2272.9519 elapsed=66.5s
+inst=05 run=07 cost=6159.5 NV=6 carbon=2272.5234 elapsed=67.3s
+inst=05 run=08 cost=6145.5 NV=6 carbon=2248.3581 elapsed=68.8s
+inst=05 run=09 cost=6052.5 NV=6 carbon=2289.6657 elapsed=68.5s
+inst=05 run=10 cost=6038.5 NV=6 carbon=2198.9022 elapsed=69.3s
+inst=06 run=01 cost=11089.1 NV=5 carbon=5076.3122 elapsed=76.6s
+inst=06 run=02 cost=11006.1 NV=5 carbon=5073.8010 elapsed=75.5s
+inst=06 run=03 cost=11675.1 NV=5 carbon=5055.0753 elapsed=75.6s
+inst=06 run=04 cost=11426.1 NV=5 carbon=5155.4364 elapsed=74.9s
+inst=06 run=05 cost=11637.1 NV=5 carbon=5048.4397 elapsed=75.0s
+inst=06 run=06 cost=11088.1 NV=5 carbon=5088.5402 elapsed=76.3s
+inst=06 run=07 cost=11090.1 NV=5 carbon=5088.3576 elapsed=75.3s
+inst=06 run=08 cost=11637.1 NV=5 carbon=5048.4136 elapsed=73.9s
+inst=06 run=09 cost=11673.1 NV=5 carbon=5053.8122 elapsed=74.0s
+inst=06 run=10 cost=10986.1 NV=5 carbon=5055.1274 elapsed=76.1s
+inst=07 run=01 cost=11538.5 NV=5 carbon=6036.3207 elapsed=77.3s
+inst=07 run=02 cost=11542.5 NV=5 carbon=5993.0570 elapsed=76.9s
+inst=07 run=03 cost=11591.5 NV=5 carbon=5925.1026 elapsed=78.9s
+inst=07 run=04 cost=11667.5 NV=5 carbon=5964.8045 elapsed=79.4s
+inst=07 run=05 cost=12245.5 NV=5 carbon=5865.3077 elapsed=78.0s
+inst=07 run=06 cost=11902.5 NV=5 carbon=5995.5421 elapsed=76.7s
+inst=07 run=07 cost=11589.5 NV=5 carbon=5938.5266 elapsed=77.1s
+inst=07 run=08 cost=11570.5 NV=5 carbon=5922.7442 elapsed=76.5s
+inst=07 run=09 cost=11700.5 NV=5 carbon=6031.8199 elapsed=77.5s
+inst=07 run=10 cost=11672.5 NV=5 carbon=5945.1436 elapsed=77.3s
+inst=08 run=01 cost=7543.5 NV=6 carbon=3495.6161 elapsed=67.5s
+inst=08 run=02 cost=7718.5 NV=6 carbon=3453.3398 elapsed=66.6s
+inst=08 run=03 cost=7838.5 NV=6 carbon=3573.6189 elapsed=67.4s
+inst=08 run=04 cost=7788.5 NV=6 carbon=3504.1891 elapsed=67.8s
+inst=08 run=05 cost=7822.5 NV=6 carbon=3455.5678 elapsed=66.8s
+inst=08 run=06 cost=7684.5 NV=6 carbon=3430.2959 elapsed=67.7s
+inst=08 run=07 cost=7555.5 NV=6 carbon=3507.1176 elapsed=65.3s
+inst=08 run=08 cost=7513.5 NV=6 carbon=3469.0998 elapsed=66.9s
+inst=08 run=09 cost=7768.5 NV=6 carbon=3489.6326 elapsed=67.2s
+inst=08 run=10 cost=7472.5 NV=6 carbon=3481.0819 elapsed=67.4s
+inst=09 run=01 cost=9126.0 NV=5 carbon=4305.1631 elapsed=72.5s
+inst=09 run=02 cost=9532.0 NV=5 carbon=4317.9909 elapsed=72.7s
+inst=09 run=03 cost=9093.0 NV=5 carbon=4284.9209 elapsed=73.2s
+inst=09 run=04 cost=9502.0 NV=5 carbon=4301.2920 elapsed=71.2s
+inst=09 run=05 cost=9245.0 NV=5 carbon=4287.7823 elapsed=72.4s
+inst=09 run=06 cost=9467.0 NV=5 carbon=4222.3727 elapsed=70.4s
+inst=09 run=07 cost=9032.0 NV=5 carbon=4304.4924 elapsed=74.4s
+inst=09 run=08 cost=9518.0 NV=5 carbon=4300.4500 elapsed=72.7s
+inst=09 run=09 cost=9044.0 NV=5 carbon=4314.6452 elapsed=75.2s
+inst=09 run=10 cost=9310.0 NV=5 carbon=4259.8465 elapsed=75.1s
+inst=10 run=01 cost=9527.1 NV=5 carbon=3850.0041 elapsed=72.0s
+inst=10 run=02 cost=9513.1 NV=5 carbon=3865.4549 elapsed=71.7s
+inst=10 run=03 cost=9535.1 NV=5 carbon=3863.0555 elapsed=72.2s
+inst=10 run=04 cost=9495.1 NV=5 carbon=3931.6209 elapsed=71.6s
+inst=10 run=05 cost=9512.1 NV=5 carbon=3862.4333 elapsed=71.8s
+inst=10 run=06 cost=9524.1 NV=5 carbon=3854.4713 elapsed=72.4s
+inst=10 run=07 cost=9546.1 NV=5 carbon=3944.5754 elapsed=72.1s
+inst=10 run=08 cost=9592.1 NV=5 carbon=3841.7925 elapsed=72.1s
+inst=10 run=09 cost=9514.1 NV=5 carbon=3862.7276 elapsed=71.3s
+inst=10 run=10 cost=9524.1 NV=5 carbon=3857.6904 elapsed=70.8s
+inst=11 run=01 cost=9642.9 NV=7 carbon=3402.3862 elapsed=120.9s
+inst=11 run=02 cost=9619.9 NV=7 carbon=3420.0277 elapsed=121.4s
+inst=11 run=03 cost=9671.9 NV=7 carbon=3407.4234 elapsed=122.2s
+inst=11 run=04 cost=9496.9 NV=7 carbon=3555.9737 elapsed=119.5s
+inst=11 run=05 cost=9559.9 NV=7 carbon=3473.4031 elapsed=120.8s
+inst=11 run=06 cost=9606.9 NV=7 carbon=3453.9508 elapsed=121.3s
+inst=11 run=07 cost=9708.9 NV=7 carbon=3452.5947 elapsed=121.4s
+inst=11 run=08 cost=9710.9 NV=7 carbon=3402.8332 elapsed=119.4s
+inst=11 run=09 cost=9536.9 NV=7 carbon=3414.7483 elapsed=119.4s
+inst=11 run=10 cost=9552.9 NV=7 carbon=3428.1499 elapsed=121.2s
+inst=12 run=01 cost=12980.9 NV=8 carbon=4931.0406 elapsed=121.4s
+inst=12 run=02 cost=12999.9 NV=8 carbon=4953.4548 elapsed=122.6s
+inst=12 run=03 cost=12901.9 NV=8 carbon=4946.0778 elapsed=121.6s
+inst=12 run=04 cost=12953.9 NV=8 carbon=4989.8705 elapsed=120.8s
+inst=12 run=05 cost=12933.9 NV=8 carbon=4927.5607 elapsed=122.8s
+inst=12 run=06 cost=12929.9 NV=8 carbon=4995.4480 elapsed=122.8s
+inst=12 run=07 cost=12901.9 NV=8 carbon=4958.6560 elapsed=122.7s
+inst=12 run=08 cost=12890.9 NV=8 carbon=4942.9258 elapsed=121.7s
+inst=12 run=09 cost=12916.9 NV=8 carbon=4977.8624 elapsed=124.0s
+inst=12 run=10 cost=12962.9 NV=8 carbon=4926.2306 elapsed=123.2s
+inst=13 run=01 cost=13436.9 NV=8 carbon=4985.9510 elapsed=117.7s
+inst=13 run=02 cost=13201.9 NV=8 carbon=4962.5644 elapsed=119.7s
+inst=13 run=03 cost=12881.9 NV=8 carbon=4897.0243 elapsed=121.4s
+inst=13 run=04 cost=13544.9 NV=8 carbon=4935.9884 elapsed=121.4s
+inst=13 run=05 cost=13099.9 NV=8 carbon=5018.2013 elapsed=120.6s
+inst=13 run=06 cost=13077.9 NV=8 carbon=4916.7485 elapsed=121.8s
+inst=13 run=07 cost=13248.9 NV=8 carbon=5000.6417 elapsed=121.3s
+inst=13 run=08 cost=13476.9 NV=8 carbon=4921.4654 elapsed=119.9s
+inst=13 run=09 cost=13401.9 NV=8 carbon=4913.5965 elapsed=122.2s
+inst=13 run=10 cost=13211.9 NV=8 carbon=5029.1663 elapsed=122.6s
+inst=14 run=01 cost=14437.6 NV=8 carbon=6584.4153 elapsed=121.0s
+inst=14 run=02 cost=14181.6 NV=8 carbon=6583.3720 elapsed=123.6s
+inst=14 run=03 cost=14282.6 NV=8 carbon=6223.9282 elapsed=122.6s
+inst=14 run=04 cost=14342.6 NV=8 carbon=6218.4513 elapsed=122.5s
+inst=14 run=05 cost=14294.6 NV=8 carbon=6184.3493 elapsed=120.8s
+inst=14 run=06 cost=14259.6 NV=8 carbon=6649.3815 elapsed=122.0s
+inst=14 run=07 cost=14320.6 NV=8 carbon=6208.9618 elapsed=122.0s
+inst=14 run=08 cost=14184.6 NV=8 carbon=6620.5590 elapsed=121.9s
+inst=14 run=09 cost=14124.6 NV=8 carbon=6615.2572 elapsed=122.9s
+inst=14 run=10 cost=14206.6 NV=8 carbon=6434.4417 elapsed=122.3s
+inst=15 run=01 cost=12643.7 NV=8 carbon=4758.2952 elapsed=117.6s
+inst=15 run=02 cost=13083.7 NV=8 carbon=4813.8129 elapsed=117.4s
+inst=15 run=03 cost=12970.7 NV=8 carbon=4832.5796 elapsed=118.0s
+inst=15 run=04 cost=13232.7 NV=8 carbon=4900.5265 elapsed=118.8s
+inst=15 run=05 cost=12581.7 NV=8 carbon=4821.7898 elapsed=119.1s
+inst=15 run=06 cost=12713.7 NV=8 carbon=4840.1355 elapsed=115.7s
+inst=15 run=07 cost=12612.7 NV=8 carbon=4768.9881 elapsed=116.8s
+inst=15 run=08 cost=13141.7 NV=8 carbon=4943.3841 elapsed=117.6s
+inst=15 run=09 cost=12726.7 NV=8 carbon=5020.7944 elapsed=120.6s
+inst=15 run=10 cost=12520.7 NV=8 carbon=4942.9072 elapsed=119.1s
+inst=16 run=01 cost=15367.4 NV=7 carbon=6965.4611 elapsed=131.5s
+inst=16 run=02 cost=15272.4 NV=7 carbon=7021.0124 elapsed=132.1s
+inst=16 run=03 cost=15545.4 NV=7 carbon=7017.6704 elapsed=128.8s
+inst=16 run=04 cost=15281.4 NV=7 carbon=6990.4611 elapsed=129.9s
+inst=16 run=05 cost=15218.4 NV=7 carbon=7150.2147 elapsed=132.2s
+inst=16 run=06 cost=15228.4 NV=7 carbon=7143.6648 elapsed=130.1s
+inst=16 run=07 cost=15402.4 NV=7 carbon=7116.7834 elapsed=128.1s
+inst=16 run=08 cost=15404.4 NV=7 carbon=7114.5665 elapsed=130.6s
+inst=16 run=09 cost=15414.4 NV=7 carbon=6948.0990 elapsed=130.9s
+inst=16 run=10 cost=15534.4 NV=7 carbon=7263.9215 elapsed=129.1s
+inst=17 run=01 cost=14150.8 NV=8 carbon=5302.7199 elapsed=112.1s
+inst=17 run=02 cost=14835.8 NV=8 carbon=5223.8080 elapsed=110.0s
+inst=17 run=03 cost=14130.8 NV=8 carbon=5322.1088 elapsed=111.6s
+inst=17 run=04 cost=14737.8 NV=8 carbon=5434.1651 elapsed=110.4s
+inst=17 run=05 cost=14697.8 NV=8 carbon=5218.5435 elapsed=110.0s
+inst=17 run=06 cost=14239.8 NV=8 carbon=5294.4002 elapsed=113.9s
+inst=17 run=07 cost=14933.8 NV=8 carbon=5219.4302 elapsed=109.7s
+inst=17 run=08 cost=14675.8 NV=8 carbon=5321.7511 elapsed=114.3s
+inst=17 run=09 cost=14291.8 NV=8 carbon=5386.0654 elapsed=110.3s
+inst=17 run=10 cost=14927.8 NV=8 carbon=5360.9388 elapsed=109.4s
+inst=18 run=01 cost=14578.5 NV=8 carbon=5239.4376 elapsed=121.2s
+inst=18 run=02 cost=14468.5 NV=8 carbon=5282.9770 elapsed=122.6s
+inst=18 run=03 cost=14396.5 NV=8 carbon=5183.6852 elapsed=129.5s
+inst=18 run=04 cost=14516.5 NV=8 carbon=5276.7326 elapsed=135.8s
+inst=18 run=05 cost=14051.5 NV=8 carbon=5492.5331 elapsed=132.1s
+inst=18 run=06 cost=14576.5 NV=8 carbon=5236.0733 elapsed=131.0s
+inst=18 run=07 cost=14396.5 NV=8 carbon=5183.6852 elapsed=129.8s
+inst=18 run=08 cost=14278.5 NV=8 carbon=5535.0888 elapsed=129.5s
+inst=18 run=09 cost=14396.5 NV=8 carbon=5183.6852 elapsed=127.6s
+inst=18 run=10 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=01 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=02 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=03 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=04 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=05 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=06 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=07 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=08 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=09 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=19 run=10 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=01 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=02 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=03 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=04 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=05 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=06 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=07 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=08 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=09 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.
+inst=20 run=10 ERROR: A process in the process pool was terminated abruptly while the future was running or pending.

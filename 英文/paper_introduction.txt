@@ -1,0 +1,197 @@
+﻿================================================================================
+FILE  : paper_introduction.txt
+SCOPE : Section 1 — Introduction
+PAPER : Multi-Objective Optimization of 2E-MD-MD-MP-CVRP-SPD using
+        Hybrid NSGA-III
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+1. INTRODUCTION
+────────────────────────────────────────────────────────────────────────────────
+
+1.1 Background and Motivation
+──────────────────────────────
+
+The global logistics industry has grown into one of the most critical pillars of
+modern economies. With the global logistics market projected to surpass USD 12.6
+trillion by 2027 (Grand View Research, 2020), the pressure to deliver goods
+efficiently, cost-effectively, and sustainably has never been greater. The rise of
+e-commerce, the proliferation of urban distribution centers, and increasingly
+dynamic customer demand patterns have collectively transformed last-mile and
+two-echelon logistics into highly complex optimization challenges.
+
+Vehicle Routing Problems (VRPs) constitute a fundamental class of combinatorial
+optimization problems in logistics. Among their extensions, the two-echelon vehicle
+routing problem (2E-VRP) has attracted growing research interest as it captures the
+two-tier distribution structure commonly observed in urban freight systems: a first
+echelon connects central depots to intermediate facilities (satellites), while a second
+echelon handles deliveries from satellites to end customers. Incorporating real-world
+constraints such as multiple depots, multi-day planning horizons, multiple daily
+time periods, vehicle capacity limits, and simultaneous pickup and delivery yields
+the two-echelon multi-depot multi-day multi-period capacitated vehicle routing
+problem with simultaneous pickup and delivery (2E-MD-MD-MP-CVRP-SPD), a
+problem formulation that closely reflects operational realities faced by modern
+logistics providers.
+
+Beyond economic efficiency, environmental sustainability has become a central
+concern for the logistics sector. Transportation is responsible for approximately
+23% of global CO₂ emissions (IEA, 2022), and regulatory bodies worldwide are
+tightening emission standards. Green logistics — the integration of environmental
+objectives into route planning — has therefore emerged as an important research
+direction. In this study, carbon emissions are quantified using the MEET
+(Methodology for calculating Transport Emissions and Energy consumption)
+framework, and minimizing carbon output is embedded as a third optimization
+objective alongside total cost and vehicle count.
+
+
+1.2 Problem Statement
+──────────────────────
+
+The 2E-MD-MD-MP-CVRP-SPD considered in this study incorporates the
+following real-world features:
+
+  (1) Two-echelon structure: First-echelon vehicles transport goods from central
+      depots to satellite facilities; second-echelon vehicles serve customers from
+      satellites within prescribed time windows.
+
+  (2) Multi-depot: Multiple central depots and multiple satellite locations are
+      available, requiring joint optimization of depot-to-satellite and
+      satellite-to-customer assignments.
+
+  (3) Multi-day and multi-period: The planning horizon spans multiple days, and
+      each day is divided into multiple service periods (e.g., morning and
+      afternoon), with customer demand varying across both days and periods.
+
+  (4) Simultaneous pickup and delivery (SPD): Each second-echelon vehicle may
+      collect returns from customers while delivering goods on the same route,
+      demanding feasible load sequencing.
+
+  (5) Three-objective optimization: The model simultaneously minimizes (i) total
+      transportation cost, (ii) total number of vehicles deployed, and
+      (iii) total carbon emissions, forming a true multi-objective problem with
+      non-trivial trade-offs.
+
+The combination of these features renders exact methods computationally
+intractable for instances of practical size, necessitating efficient metaheuristic
+approaches.
+
+
+1.3 Limitations of Existing Approaches
+────────────────────────────────────────
+
+Existing solution approaches for 2E-VRP variants predominantly rely on either
+exact optimization (e.g., Gurobi-based MILP, branch-and-price) or classical
+metaheuristics (e.g., NSGA-II, adaptive large neighborhood search). While exact
+methods guarantee optimality, they scale poorly beyond small instances. Classical
+evolutionary algorithms such as NSGA-II and standard NSGA-III often suffer from:
+
+  (i)  Poor initial solution quality when using random initialization, leading to
+       slow convergence and a high likelihood of settling in poor-quality regions
+       of the search space from the first generation onward;
+
+  (ii) Insufficient diversity maintenance in later evolutionary stages, causing
+       the population to cluster around a narrow portion of the Pareto front and
+       lose coverage of important trade-off regions;
+
+  (iii) Weak local refinement capability, as standard genetic operators (crossover
+        and mutation) operate at the chromosome level and cannot efficiently
+        improve individual route structures without dedicated local search;
+
+  (iv) Limited robustness across independent runs, producing high variance in
+       solution quality, which undermines practical deployment confidence in
+       stochastic real-world settings.
+
+These limitations are particularly pronounced for complex problem variants such
+as the 2E-MD-MD-MP-CVRP-SPD, where the large solution space, multi-period
+structure, and multi-echelon routing interdependencies amplify the difficulty of
+both initialization and local improvement. While several studies have proposed
+Hybrid NSGA-III variants for VRP-related problems [Li et al., 2025; Deb &
+Jain, 2014], the specific combination of enhancements required to address all
+four limitations simultaneously for this problem class has not been studied.
+
+
+1.4 Proposed Approach and Contributions
+─────────────────────────────────────────
+
+This study proposes an Hybrid NSGA-III (HNSGA-III) that directly addresses
+the four limitations identified above through four targeted algorithmic
+enhancements integrated into the NSGA-III reference-point framework:
+
+  (1) Nearest-Neighbor (NN) Initialization: Rather than randomly permuting
+      customer sequences, HNSGA-III constructs each initial individual as a
+      geographically coherent nearest-neighbor tour with a randomly chosen
+      starting customer. This produces diverse yet high-quality starting
+      populations (addressing limitation i).
+
+  (2) Hybrid Mutation: A dual-operator mutation strategy alternates between
+      3-point inversion (for large structural perturbation and exploration) and
+      2-point swap (for fine-grained local refinement). The two operators are
+      selected with equal probability, naturally balancing exploration and
+      exploitation without adaptive scheduling (addressing limitation ii).
+
+  (3) Embedded 2-opt Local Search: After each crossover-and-mutation step,
+      a 2-opt improvement is applied to every offspring individual before
+      selection. This ensures all candidate solutions receive at least one round
+      of route-level refinement, raising the average quality of the candidate
+      pool (addressing limitation iii).
+
+  (4) Stagnation-Triggered Variable Neighborhood Search (VNS): A stagnation
+      counter tracks consecutive generations without improvement. When the
+      counter reaches the threshold (τ = 5 generations), the VNS applies
+      exchange and relocate operators to the best individual to escape local
+      optima (addressing limitation iv).
+
+The main contributions of this study are:
+
+  1. Problem formulation: A comprehensive three-objective 2E-MD-MD-MP-CVRP-SPD
+     model is formulated, integrating the MEET carbon emission model into a
+     unified multi-objective optimization framework applicable to realistic
+     multi-day, multi-period logistics operations.
+
+  2. Algorithm design: HNSGA-III is proposed as a problem-specific improved
+     NSGA-III incorporating NN initialization, hybrid mutation, embedded 2-opt
+     local search, and stagnation-triggered VNS, tailored to the two-echelon
+     routing structure.
+
+  3. Hybrid two-tier solution framework: A decomposition approach is used in
+     which HNSGA-III optimizes the computationally intensive second-echelon
+     routes while a Gurobi-based MILP solver handles the first-echelon routing
+     exactly, achieving high solution quality within practical runtimes.
+
+  4. Comprehensive empirical evaluation: HNSGA-III is benchmarked against
+     NK-HNSGA-III (K-Medoids initialization variant) and standard NSGA-III
+     across 20 instances using six performance indicators (average cost,
+     standard deviation, spacing SP, hypervolume HV, generational distance GD,
+     inverted generational distance IGD) and Mann-Whitney U statistical tests.
+     HNSGA-III achieves 1.1% lower average cost and 51.0% lower solution
+     variance than NSGA-III, with superior Pareto front coverage on five of six
+     quality metrics.
+
+
+1.5 Paper Organization
+───────────────────────
+
+The remainder of this paper is organized as follows. Section 2 reviews related
+literature on two-echelon VRP variants, green vehicle routing, and improved
+NSGA-III algorithms. Section 3 formally defines the 2E-MD-MD-MP-CVRP-SPD
+and presents the mathematical model. Section 4 describes the proposed HNSGA-III
+algorithm in detail, including its initialization, operators, and local search
+mechanisms. Section 5 presents the experimental setup, parameter sensitivity
+analysis, benchmark results, and comparative analysis against baselines.
+Section 6 concludes with a summary of findings and directions for future research.
+
+────────────────────────────────────────────────────────────────────────────────
+NOTES FOR REVISION
+────────────────────────────────────────────────────────────────────────────────
+- [ ] Add 2-3 specific citations for 2E-VRP background in §1.1 (e.g., Perboli
+      et al. 2011, Crainic et al. 2011)
+- [ ] Add citation for IEA 2022 CO₂ statistics
+- [ ] Add citation for Grand View Research (2020) market size figure
+- [ ] In §1.3, add 1-2 specific citations for Hybrid NSGA-III VRP studies
+      to support the gap claim (Li et al. 2025 reference confirmed)
+- [ ] In §1.4 contribution 4, verify metric list matches Section 5 (SD metric
+      may also be reported — add if included in Section 5 tables)
+- [ ] Consider adding a motivating real-world example (e.g., regional courier
+      operating multi-satellite urban distribution) in §1.1 to strengthen
+      practical relevance
+================================================================================

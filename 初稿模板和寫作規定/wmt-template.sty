@@ -1,0 +1,77 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{wmt-template}[2026/02/15 v1.2 Professional Package Template]
+
+% ====== 1. Layout & Digital Navigation ======
+\RequirePackage{geometry}
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm, headheight=15pt}
+
+\RequirePackage{fancyhdr}
+\RequirePackage{lastpage}
+\RequirePackage{hyperref}
+\RequirePackage{bookmark}
+\RequirePackage{csquotes}
+\RequirePackage[english]{datetime2}
+
+% 強制修正紅框問題，設為全域樣式 [cite: 2026-02-15]
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	filecolor=black,
+	urlcolor=black,
+	citecolor=black,
+	pdfborder={0 0 0}
+}
+
+% ====== 2. 全自動頁首頁尾配置 (Hook) ======
+% --- 定義學生姓名的命令，並給予預設值 ---
+\newcommand{\studentname}[1]{\def\@studentname{#1}}
+\studentname{Unknown Student} % 給予一個預設值
+
+% ---  定義自定義日期格式 (數字斜線型) ---
+\DTMnewdatestyle{yyyymmdd}{%
+	\renewcommand{\DTMdisplaydate}[4]{##1/##2/##3}%
+	\renewcommand{\DTMDisplaydate}{\DTMdisplaydate}%
+}
+\DTMsetdatestyle{yyyymmdd}
+
+\AtBeginDocument{
+	\pagestyle{fancy}
+	\fancyhf{}
+	\fancyhead[L]{\footnotesize Student: \@studentname}
+	\fancyhead[R]{\footnotesize Draft Paper}
+	\renewcommand{\headrulewidth}{0.4pt}
+
+	\fancyfoot[L]{\small \today}
+	\fancyfoot[C]{\small \thepage\ / \pageref{LastPage}}
+	\renewcommand{\footrulewidth}{0.4pt}
+}
+
+
+% ====== 3. UI, Math & Others (保持不變) ======
+\RequirePackage[dvipsnames]{xcolor}
+\RequirePackage[skins]{tcolorbox}
+\RequirePackage{enumitem}
+\RequirePackage{amsmath, amssymb, mathtools}
+\RequirePackage{siunitx}
+\sisetup{group-separator = {,}, mode = match}
+
+% ====== 4. Bibliography (BibTeX Backend) ======
+\RequirePackage[backend=bibtex, style=ieee, sorting=none, sortcites=true, isbn=false, doi=true]{biblatex}
+
+% ====== 5. Algorithm & Table & Figure ======
+\RequirePackage{algorithm}
+\RequirePackage{algpseudocode}
+\RequirePackage{stfloats}
+\RequirePackage{multicol}
+\RequirePackage{tabularray}
+\RequirePackage{graphicx}
+
+% ====== 6. Smart Referencing (Must be loaded last) ======
+\RequirePackage[capitalize, nameinlink]{cleveref} % capitalize: 首字母大寫; nameinlink: 連結包含標籤名
+% 自定義標籤名稱
+\crefname{table}{Table}{Tables}
+\crefname{figure}{Figure}{Figures}
+\crefname{equation}{Eq.}{Eqs.}
+\crefname{algorithm}{Algorithm}{Algorithms}
+
+\endinput

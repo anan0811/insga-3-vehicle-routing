@@ -1,0 +1,1024 @@
+% ============================================================
+%  main_zh.tex  —  中文版 Overleaf 主文件
+%  論文：使用混合式 NSGA-III（HNSGA-III）對
+%        2E-MD-MD-MP-CVRP-SPD 進行多目標最佳化
+%
+%  【重要】Overleaf 編譯器須設定為 XeLaTeX：
+%          Menu → Compiler → XeLaTeX
+% ============================================================
+\documentclass[11pt, a4paper]{article}
+
+% ── 中文支援（XeLaTeX 專用，須在 wmt-template 前載入）──────
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setCJKmainfont{Noto Serif CJK TC}
+\setCJKsansfont{Noto Sans CJK TC}
+\setCJKmonofont{Noto Sans Mono CJK TC}
+\setmainfont{Times New Roman}
+
+% ── 老師規定模板（最高優先）────────────────────────────────
+\usepackage{wmt-template}
+\usepackage[section]{placeins}   % 確保浮動體留在所屬章節
+
+% ── 中文版排版調整（在 wmt-template 後設定）────────────────
+\setlength{\parindent}{2em}
+\setlength{\parskip}{4pt}
+\linespread{1.3}
+
+% ── 浮動體與環境名稱中文化 ──────────────────────────────────
+\renewcommand{\figurename}{圖}
+\renewcommand{\tablename}{表}
+\renewcommand{\abstractname}{摘要}
+\renewcommand{\algorithmiccomment}[1]{\hfill$\triangleright$ #1}
+\renewcommand{\algorithmicrequire}{\textbf{輸入：}}
+\renewcommand{\algorithmicensure}{\textbf{輸出：}}
+
+\addbibresource{references.bib}
+\graphicspath{{./}{./figures/}}
+
+\algnewcommand{\To}{\textbf{to }}
+\algnewcommand{\Step}{\textbf{step }}
+
+\studentname{[作者姓名]}
+
+% ── 自訂數學縮寫 ─────────────────────────────────────────────
+\newcommand{\KFE}{K_{\mathrm{FE}}}
+\newcommand{\KSE}{K_{\mathrm{SE}}}
+\newcommand{\NFE}{N_{\mathrm{FE}}}
+\newcommand{\NSE}{N_{\mathrm{SE}}}
+\newcommand{\QFE}{Q_{\mathrm{FE}}}
+\newcommand{\QSE}{Q_{\mathrm{SE}}}
+\newcommand{\cFE}{c_{\mathrm{FE}}}
+\newcommand{\cSE}{c_{\mathrm{SE}}}
+\newcommand{\eSE}{e_{\mathrm{SE}}}
+\newcommand{\vSE}{v_{\mathrm{SE}}}
+\newcommand{\vFE}{v_{\mathrm{FE}}}
+\newcommand{\CFE}{C_{\mathrm{FE}}}
+\newcommand{\CSE}{C_{\mathrm{SE}}}
+\newcommand{\EFE}{E_{\mathrm{FE}}}
+\newcommand{\ESE}{E_{\mathrm{SE}}}
+
+\algrenewcommand\algorithmicindent{1.2em}
+\numberwithin{equation}{section}
+
+% ============================================================
+\title{\textbf{使用混合式非支配排序遺傳演算法第三代（HNSGA-III）\\
+對二階多倉多日多期有容量限制含同取同送\\
+車輛路徑問題進行多目標最佳化}}
+
+\author{[作者姓名]}
+\date{}
+% ============================================================
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+% ────────────────────────────────────────────────────────────
+\begin{abstract}
+本研究探討二階多倉多日多期有容量限制含同取同送車輛路徑問題
+（2E-MD-MD-MP-CVRP-SPD），此問題同時最小化總運輸成本、車輛數量與碳排放量。
+為求解此三目標問題，本研究提出混合式非支配排序遺傳演算法第三代
+（HNSGA-III），相較於標準 NSGA-III 導入四項改進機制：
+（1）以最近鄰域法（NN）初始化建構具地理結構的初始族群；
+（2）結合三點反轉與二點交換的混合突變；
+（3）每代對所有子代個體嵌入 2-opt 區域搜尋；
+（4）停滯觸發式變動鄰域搜尋（VNS），於收斂停滯時透過交換與重插運算子
+跳脫局部最優解。
+碳排放量採用 MEET 模型~\cite{hickman1999} 計算。
+第一階段路徑於第二階段路徑由 HNSGA-III 最佳化後，使用 Gurobi MILP
+求解器精確求解。
+
+以 20 筆基準案例（50 位顧客組與 80 位顧客組，各執行 10 次獨立運算）為基礎，
+將 HNSGA-III 與 NK-HNSGA-III（K-Medoids 初始化變體）及標準 NSGA-III
+進行比較。HNSGA-III 在所有演算法中取得最低平均成本（\$10{,}567.5），
+優於 NSGA-III 1.1\%，並將解的變異數降低 51.0\%（標準差：96.5 對 197.1）。
+Pareto 前緣品質指標進一步確認其優越性：HNSGA-III 達到更高超體積值
+（HV\,=\,0.7995 對 0.7635）、更佳解分佈均勻性（SP\,=\,0.1535 對 0.1924），
+以及 36.4\% 更低的世代距離（GD\,=\,0.1956 對 0.3076）。
+集合覆蓋度分析顯示 HNSGA-III 支配 58.0\% 的 NSGA-III Pareto 解，
+反向僅 46.0\%。Mann-Whitney U 檢定（$p<0.05$）在 20 個案例中有 2 個達到
+統計顯著水準。上述結果證實所提出的 HNSGA-III 能有效提升大規模綠色
+二階物流最佳化的解品質、穩定性與 Pareto 前緣覆蓋範圍。
+
+\medskip
+\noindent\textbf{關鍵詞：}二階車輛路徑問題；多目標最佳化；NSGA-III；
+最近鄰域初始化；變動鄰域搜尋；碳排放；超體積；綠色物流
+\end{abstract}
+
+% ============================================================
+\section{緒論}
+\label{sec:intro}
+% ============================================================
+
+本章介紹研究動機、問題定義、現有方法的限制，並概述本文的貢獻與章節安排。
+
+\subsection{研究背景與動機}
+
+全球物流產業已成為現代經濟最重要的支柱之一。Grand View Research（2020）
+預估全球物流市場規模至 2027 年將突破 12.6 兆美元~\cite{grandview2020}，
+對貨物配送的效率、成本控制與永續發展的需求持續攀升。電子商務的興起、
+城市配送中心的普及，以及日益動態的顧客需求模式，共同將最後一哩配送與
+二階物流轉化為高度複雜的最佳化挑戰。
+
+車輛路徑問題（Vehicle Routing Problem，VRP）是物流領域中組合最佳化問題的
+基礎類別~\cite{dantzig1959}。在其延伸問題中，二階車輛路徑問題
+（Two-Echelon VRP，2E-VRP）~\cite{perboli2011,crainic2011} 因能捕捉都市貨運
+系統中常見的二層配送結構而受到廣泛關注：第一階段（FE）將貨物從中央倉庫
+運至中繼設施（衛星站），第二階段（SE）再由衛星站配送至終端顧客。整合多倉庫、
+多日規劃期、多個服務時段、車輛容量限制及同取同送等約束，即形成
+2E-MD-MD-MP-CVRP-SPD，此問題定式高度貼近現代物流業者所面臨的實際運營情境。
+
+除經濟效益外，環境永續已成為物流產業的核心議題。運輸部門約佔全球
+CO$_2$ 排放量的 23\%~\cite{iea2022}，各國監管機構正持續收緊排放標準。
+本研究採用 MEET 模型~\cite{hickman1999} 量化碳排放量，並將碳排放最小化
+作為第三個最佳化目標，與總成本及車輛數一同納入多目標框架。
+
+\subsection{問題概述}
+
+本研究所探討的 2E-MD-MD-MP-CVRP-SPD 包含以下實務特性：
+\begin{enumerate}
+  \item \textit{二階配送結構}：第一階段車輛將貨物從中央倉庫運至衛星站；
+        第二階段車輛在指定時間窗內從衛星站服務顧客。
+  \item \textit{多倉庫}：可使用多個中央倉庫與多個衛星站，需同時最佳化
+        倉庫至衛星站及衛星站至顧客的指派決策。
+  \item \textit{多日多期}：規劃期橫跨多天，每天劃分為多個服務時段
+        （如上午、下午），顧客需求隨日期與時段變動。
+  \item \textit{同取同送（SPD）}：第二階段車輛在同一路線中可同時為
+        顧客取貨與送貨，需滿足可行的裝載順序約束。
+  \item \textit{三目標最佳化}：同時最小化（i）總運輸成本、
+        （ii）車輛派遣總數與（iii）總碳排放量，構成具有非平凡取捨關係
+        的真實多目標問題。
+\end{enumerate}
+
+\subsection{現有方法的限制}
+
+現有 2E-VRP 系列問題的求解方法主要分為精確最佳化
+（如 Gurobi MILP、分枝定價法）與傳統超啟發演算法
+（如 NSGA-II、自適應大鄰域搜尋）兩類。精確方法雖能保證最優性，
+但難以擴展至實務規模；而 NSGA-II 與標準 NSGA-III 等傳統演化演算法
+常面臨以下挑戰：
+\begin{enumerate}[label=（\roman*）]
+  \item 隨機初始化導致初始解品質不佳；
+  \item 演化後期多樣性維持能力不足；
+  \item 區域改善能力薄弱，缺乏路線層次的高效局部搜尋；
+  \item 多次獨立執行的穩健性不足，解品質變異過大。
+\end{enumerate}
+
+\subsection{本研究提出的方法與貢獻}
+
+本研究提出 HNSGA-III，透過四項針對性改進直接解決上述限制：
+\begin{enumerate}
+  \item \textbf{NN 初始化}：以隨機起始顧客建構地理連貫的最近鄰域路線
+        作為每個初始個體，產生多元且高品質的初始族群。
+  \item \textbf{混合突變}：以等機率（各 50\%）交替採用三點反轉運算子
+        （探索）與二點交換運算子（開發）。
+  \item \textbf{嵌入式 2-opt}：對所有子代個體執行後再進行 NSGA-III
+        選擇，提升候選池的平均品質。
+  \item \textbf{停滯觸發式 VNS}：連續 $\tau=5$ 代無改善時，對最佳個體
+        執行交換與重插運算子以逃脫局部最優解。
+\end{enumerate}
+
+主要貢獻：（1）整合 MEET 碳排放模型的完整三目標
+2E-MD-MD-MP-CVRP-SPD 建模；（2）HNSGA-III 演算法；（3）HNSGA-III
+（SE 層）與 Gurobi MILP（FE 層）的混合雙層求解框架；（4）以六項效能指標
+在 20 個基準案例上的完整實驗驗證。
+
+\subsection{論文架構}
+
+第二章回顧相關文獻。第三章建立數學模型。第四章詳述 HNSGA-III 演算法。
+第五章呈現計算實驗結果。第六章總結研究發現。
+
+% ============================================================
+\section{文獻回顧}
+\label{sec:lit}
+% ============================================================
+
+以下各小節回顧與 2E-MD-MD-MP-CVRP-SPD 相關的主要文獻領域：二階路徑問題及其
+結構延伸、含碳排放建模的綠色 VRP、應用於路徑規劃的多目標演化演算法，以及
+局部搜尋混合技術。本章最後定位本研究在現有文獻中的位置。
+
+\subsection{二階車輛路徑問題及其延伸}
+
+車輛路徑問題由 Dantzig 與 Ramser~\cite{dantzig1959} 提出，是作業研究領域
+中研究最廣泛的組合最佳化問題之一。2E-VRP 的基礎數學模型由
+Perboli et al.~\cite{perboli2011} 與 Crainic et al.~\cite{crainic2011}
+建立。Sluijk et al.~\cite{sluijk2023} 的系統性調查對 2E-VRP 變體進行了
+全面分類，揭示此二層結構在城市貨運中的廣泛適用性。
+
+含同取同送（SPD）的延伸要求 SE 車輛在同一路線中同時為顧客送貨與取貨。
+Belgin et al.~\cite{belgin2018} 提出 2E-CVRP-SPD 最早的精確模型之一。
+Zhou et al.~\cite{zhou2022spd} 在此框架中加入時間窗約束，
+Li et al.~\cite{li2022stoch} 進一步研究含隨機需求的 2E-VRP-SPD。
+
+多倉庫延伸（MD-2E-VRP）承認實際物流網路中通常有多個倉庫。
+Kancharla 與 Ramadurai~\cite{kancharla2019} 建立了城市貨運的多倉庫二階問題，
+顯示協調衛星站選派可顯著降低總成本。
+Zhou et al.~\cite{zhou2018md} 以混合遺傳演算法求解含時間窗的 MD-2E-VRP。
+
+多期維度將規劃期從單日延伸至多天。Mourgaya 與 Vanderbeck~\cite{mourgaya2007}
+提出多期 VRP 的列生成方法。Wen et al.~\cite{wen2010} 建立城市物流的
+多期二階模型。Wang et al.~\cite{wang2021,wang2023} 進一步研究多倉庫
+多期 2E-VRP 及協作衛星共用。目前尚無研究同時涵蓋本研究問題的所有五項特性。
+
+\subsection{綠色車輛路徑問題與碳排放建模}
+
+運輸部門約佔全球 CO$_2$ 排放量的 23\%~\cite{iea2022}。MEET
+模型~\cite{hickman1999} 提供多分量排放估算框架，將車輛排放分解為
+基礎排放率函數 $\varphi(v)$、載重修正函數 $\psi(v)$ 與道路坡度修正函數
+$r(v)$。Li et al.~\cite{li2025} 將 MEET 應用於含時間窗的多目標綠色 VRP，
+顯示基於 MEET 的排放目標產生與簡單距離代理函數性質截然不同的 Pareto 前緣。
+Jepsen et al.~\cite{jepsen2013} 提出對稱二階有容量 VRP 的精確分枝截割演算法。
+
+\subsection{應用於 VRP 的多目標演化演算法}
+
+NSGA-II~\cite{deb2002nsga2} 引入快速非支配排序與擁擠距離選擇機制，
+成為 VRP 應用中的參考 MOEA。NSGA-III~\cite{deb2014nsga3} 針對三目標以上問題
+的不足，以均勻分佈於規格化超平面上的結構化參考點取代擁擠距離，
+明確控制 Pareto 前緣的多樣性，並能優雅擴展至三個或更多目標。
+
+標準 NSGA-III 應用於 VRP 時存在缺陷：隨機初始化產生低品質初始解、
+缺乏路線層次的局部改善能力、無顯式的局部最優逃脫機制。近期改良方案
+包括基於遷移學習的初始化~\cite{improvedNSGA3transfer}、
+深度 Q-Learning 引導的運算子選擇~\cite{dqlNSGA3} 及協同演化策略~\cite{coevNSGA3}。
+Li et al.~\cite{li2025} 提出 INSGA-III，整合 NN 初始化與選擇性精英 2-opt，
+在 Solomon 基準算例上相較 NSGA-II 與 NSGA-III 實現顯著成本下降。
+本研究提出的 HNSGA-III 在此基礎上進一步擴展至更複雜的
+2E-MD-MD-MP-CVRP-SPD，結合混合突變、停滯觸發式 VNS、對全體子代施行 2-opt，
+並耦合精確 FE MILP 求解器。
+
+\subsection{VRP 超啟發演算法中的局部搜尋與混合技術}
+
+2-opt 運算子~\cite{lin1965} 透過反轉路線片段消除交叉路段，
+是最具效率的路線改善程序之一。在遺傳演算法每代嵌入 2-opt 一致改善解品質。
+Or-opt 族群~\cite{or1976}（包含重插與交換）在非反轉移動方向上延伸 2-opt。
+VNS 框架~\cite{hansen2001} 在規模遞增的鄰域間交替，防止過早收斂。
+自適應大鄰域搜尋（ALNS）~\cite{ropke2006} 提供更通用的擾動框架，
+但運算子選擇開銷相對較高。
+
+K-Means 分群啟發式廣泛應用於多衛星路徑規劃的顧客—衛星指派，
+與多衛星 2E-VRP 的幾何分割方法相符~\cite{wang2021,wang2023}。
+
+\subsection{研究缺口與本研究定位}
+
+目前尚無研究同時涵蓋：（1）含多倉庫與多衛星站的二階結構；
+（2）具有期次相關需求的多日多期規劃期；（3）第二階段的同取同送需求；
+（4）依 MEET 模型計算的三目標最佳化；
+（5）整合 NN 初始化、混合突變、全體子代 2-opt 及停滯觸發式 VNS
+的混合 MOEA 並耦合精確 FE 求解器。本研究的 2E-MD-MD-MP-CVRP-SPD
+與 HNSGA-III 填補了此研究缺口。
+
+% ============================================================
+\section{問題描述與數學模型}
+\label{sec:model}
+% ============================================================
+
+本章正式定義 2E-MD-MD-MP-CVRP-SPD，陳述建模假設，引入符號說明，
+並提出包含所有第一階段與第二階段約束的完整三目標數學模型。
+
+\subsection{問題描述}
+
+2E-MD-MD-MP-CVRP-SPD 定義於包含多個倉庫（Depot）、多個衛星站
+（Satellite）與多個顧客（Customer）的二層配送網路。第一階段（FE）
+大型貨車將整合貨物從倉庫運至衛星站；第二階段（SE）較小型車輛從
+衛星站出發，在同一路線中同時執行送貨與取貨。規劃期跨越多日（$t\in T$），
+每日劃分為多個服務時段（$p\in P$），顧客需求隨日期與時段變動。
+
+系統運作流程：（i）K-Means 預處理將顧客分群至各衛星站；
+（ii）HNSGA-III 決定 SE 車輛路線；（iii）SE 路線確定後，Gurobi MILP
+精確最佳化 FE 路徑。三個目標同時最小化：$f_1$（總運輸成本）、
+$f_2$（總車輛數）與 $f_3$（依 MEET 模型計算的總碳排放量）。
+
+\subsection{假設條件}
+
+\begin{enumerate}
+  \item 顧客所有取貨物品暫存於服務衛星站，再統一送回倉庫。
+  \item 每位顧客擁有軟性服務時間窗 $[a_i^{t,p},\,b_i^{t,p}]$；
+        提早或延遲到達產生懲罰成本。
+  \item 規劃期橫跨多個運營日，每日劃分為多個時段；顧客需求每日每時段已知。
+  \item 每座倉庫庫存足以滿足所有顧客需求；衛星站不受吞吐量容量限制。
+  \item SE 車輛路線上的總載重（配送量＋取貨量）不得超過 $\QSE$。
+  \item SE 車輛路線必須從同一衛星站出發並返回，不跨衛星站服務。
+  \item 每位顧客的配送與取貨由同一輛車在同一次拜訪中同時完成。
+  \item 所有 FE 貨車均質，最大容量 $\QFE$；任何貨車可服務任意倉庫—衛星站路段。
+  \item 所有 SE 車輛均質，最大容量 $\QSE$；以固定速度 $\vSE=50$ km/h 行駛。
+\end{enumerate}
+
+\subsection{符號說明}
+
+\paragraph{集合與索引。}
+\begin{tblr}{l l}
+  $D,\,d$          & 倉庫集合；$d$ 為索引 \\
+  $S,\,s$          & 衛星站集合；$s$ 為索引 \\
+  $C,\,i,j$        & 顧客集合；$i,j$ 為索引 \\
+  $T,\,t$          & 規劃日集合；$t$ 為索引 \\
+  $P,\,p$          & 服務時段集合；$p$ 為索引 \\
+  $\KFE,\,r$       & FE 車輛集合；$r$ 為索引 \\
+  $\KSE,\,k$       & SE 車輛集合；$k$ 為索引 \\
+  $\NFE = D\cup S$ & FE 路網節點集合 \\
+  $\NSE = S\cup C$ & SE 路網節點集合 \\
+\end{tblr}
+
+\paragraph{參數。}
+\begin{tblr}{l l}
+  $L_{ij}$              & 節點 $i$ 至節點 $j$ 的距離（km） \\
+  $\vSE$                & SE 車輛速度（= 50 km/h） \\
+  $\vFE$                & FE 車輛速度（km/h） \\
+  $TT_{ds}$             & 倉庫 $d$ 至衛星站 $s$ 的行駛時間 \\
+  $DD_i^{t,p}$          & 顧客 $i$ 在第 $t$ 日第 $p$ 時段的配送需求（kg） \\
+  $DP_i^{t,p}$          & 顧客 $i$ 在第 $t$ 日第 $p$ 時段的取貨需求（kg） \\
+  $DD_s^t$              & 衛星站 $s$ 在第 $t$ 日的總配送需求（kg） \\
+  $DP_s^t$              & 衛星站 $s$ 在第 $t$ 日的總取貨需求（kg） \\
+  $\QSE$                & SE 車輛最大容量（= 400 kg） \\
+  $\QFE$                & FE 車輛最大容量（= 4{,}000 kg） \\
+  $\cSE$                & SE 單位距離運費（= 0.05 \$/km） \\
+  $\cFE$                & FE 單位距離運費（= 0.2 \$/km） \\
+  $F_r$                 & FE 貨車固定派遣成本（= 80 \$） \\
+  $\xi_e,\,\xi_l$       & 提早／延遲到達懲罰率（各 = 0.2 \$/分鐘） \\
+  $a_d,\,b_d$           & 倉庫 $d$ 的作業時間窗 \\
+  $a_s^{t,p},b_s^{t,p}$ & 衛星站 $s$ 在第 $t$ 日第 $p$ 時段的時間窗 \\
+  $a_i^{t,p},b_i^{t,p}$ & 顧客 $i$ 在第 $t$ 日第 $p$ 時段的服務時間窗 \\
+\end{tblr}
+
+\paragraph{決策變數。}
+\begin{tblr}{l l}
+  $x_{ij}^{k,s,t,p}\in\{0,1\}$            & SE 車輛 $k$ 行駛弧 $(i,j)$ 於衛星 $s$，第 $t$ 日第 $p$ 時段 \\
+  $u_i^{k,s,t,p}\ge 0$                    & SE 車輛 $k$ 抵達顧客 $i$ 時的累計載量 \\
+  $A_i^{k,s,t,p}\ge 0$                    & SE 車輛 $k$ 抵達節點 $i$ 的時刻 \\
+  $y_{ds}^{r,t}\in\{0,1\}$                & FE 貨車 $r$ 行駛弧 $(d,s)$ 於第 $t$ 日 \\
+  $f_{ds}^{r,t}\ge 0$                     & FE 貨車 $r$ 在路段 $(d,s)$ 上的運貨量 \\
+  $ST_{dr}^t\ge 0$                        & FE 貨車 $r$ 於第 $t$ 日從倉庫 $d$ 出發的時刻 \\
+  $VT_{sr}^t\ge 0$                        & FE 貨車 $r$ 於第 $t$ 日抵達衛星站 $s$ 的時刻 \\
+  $z_s^{t,p}\in\{0,1\}$                   & 衛星站 $s$ 於第 $t$ 日第 $p$ 時段啟用 \\
+  $\delta_r^{\mathrm{FE},t}\in\{0,1\}$    & FE 貨車 $r$ 於第 $t$ 日被派遣 \\
+  $\delta_k^{\mathrm{SE},t,p}\in\{0,1\}$  & SE 車輛 $k$ 於第 $t$ 日第 $p$ 時段被派遣 \\
+\end{tblr}
+
+\subsection{數學模型}
+
+\subsubsection{目標函數}
+
+\paragraph{（f1）最小化總成本。}
+FE 運輸成本 $\CFE$ 包含距離比例項與固定派遣成本：
+\begin{equation}
+  \CFE = \sum_{d\in D}\sum_{s\in\NFE}\sum_{r\in\KFE}\sum_{t\in T}
+           y_{ds}^{r,t}\,L_{ds}\,\cFE
+         + \sum_{r\in\KFE}\sum_{t\in T}\delta_r^{\mathrm{FE},t}\,F_r
+  \label{eq:CFE}
+\end{equation}
+其中 $\cFE=0.2$ \$/km，$F_r=80$ \$。SE 成本 $\CSE$ 包含距離運費與
+軟性時間窗懲罰：
+\begin{equation}
+  \CSE = \sum_{i,j\in\NSE}\sum_{k\in\KSE}\sum_{s\in S}\sum_{t\in T}\sum_{p\in P}
+           x_{ij}^{k,s,t,p}\,L_{ij}\,\cSE
+         + \sum_{i\in C}\sum_{k\in\KSE}\sum_{s\in S}\sum_{t\in T}\sum_{p\in P}
+           \Bigl[\xi_e\max\!\bigl(a_i^{t,p}-A_i^{k,s,t,p},0\bigr)
+                +\xi_l\max\!\bigl(A_i^{k,s,t,p}-b_i^{t,p},0\bigr)\Bigr]
+  \label{eq:CSE}
+\end{equation}
+其中 $\cSE=0.05$ \$/km；$\xi_e=\xi_l=0.2$ \$/分鐘；上午時段車輛於
+540 分鐘（09:00）從衛星站出發，下午時段於 720 分鐘（12:00）出發。
+\begin{equation}
+  \min\;f_1 = \CFE + \CSE
+  \label{eq:f1}
+\end{equation}
+
+\paragraph{（f2）最小化總車輛派遣數。}
+\begin{equation}
+  \min\;f_2 = \sum_{t\in T}\sum_{p\in P}
+    \Bigl(\sum_{r\in\KFE}\delta_r^{\mathrm{FE},t}
+         +\sum_{k\in\KSE}\delta_k^{\mathrm{SE},t,p}\Bigr)
+  \label{eq:f2}
+\end{equation}
+
+\paragraph{（f3）最小化總碳排放量。}
+採用 MEET 模型~\cite{hickman1999} 計算。對 3.5 噸廂式卡車
+（Hickman et al.~\cite{hickman1999} 表~A24）：
+\begin{align}
+  \varphi(v) &= 110 + 0.000375\,v^3 + \frac{8702}{v}
+  \quad\text{（g CO}_2\text{/km）}\\
+  \psi(v)    &= 1.27 - 0.00235\,v - \frac{1.33}{v}
+\end{align}
+單位距離碳排放為 $\varphi(v)\cdot\psi(v)/1000$（kg CO$_2$/km）。
+SE 車輛以固定速度 $\vSE=50$ km/h 行駛：
+\[
+  \varphi(50)=330.915\;\text{g/km},\quad
+  \psi(50)=1.1259,\quad
+  \eSE=330.915\times1.1259/1000\approx0.3726\;\text{kg CO}_2\text{/km.}
+\]
+\begin{align}
+  \ESE &= \sum_{i,j\in\NSE}\sum_{k\in\KSE}\sum_{s\in S}\sum_{t\in T}\sum_{p\in P}
+           x_{ij}^{k,s,t,p}\,L_{ij}\,\eSE \\
+  \EFE &= \sum_{(d,s)}\sum_{r\in\KFE}\sum_{t\in T}
+           y_{ds}^{r,t}\,L_{ds}\,e_{\mathrm{FE}}(\vFE) \\
+  &\min\;f_3 = \ESE + \EFE
+  \label{eq:f3}
+\end{align}
+
+\subsubsection{第一階段（FE）約束}
+
+\begin{align}
+  &\sum_{d\in D}\sum_{r\in\KFE}y_{ds}^{r,t} \ge z_s^{t,p},
+  &&\forall\,s\in S,\,t\in T,\,p\in P
+  \tag{C1}\label{c1}\\
+  &\sum_{d\in D,s\in S}y_{ds}^{r,t}-\sum_{s\in S,d\in D}y_{sd}^{r,t}=0,
+  &&\forall\,r\in\KFE,\,t\in T
+  \tag{C2}\label{c2}\\
+  &\sum_{d\in D,s\in S}y_{ds}^{r,t}(DD_s^t+DP_s^t)\le\QFE,
+  &&\forall\,r\in\KFE,\,t\in T
+  \tag{C3}\label{c3}\\
+  &f_{ds}^{r,t}\ge 0,
+  &&\forall\,d\in D,s\in S,r\in\KFE,t\in T
+  \tag{C4a}\label{c4a}\\
+  &\sum_{d\in D}f_{ds}^{r,t}-\sum_{d\in D}f_{sd}^{r,t}
+    =y_{ds}^{r,t}(DD_s^t+DP_s^t),
+  &&\forall\,s\in S,r\in\KFE,t\in T
+  \tag{C4b}\label{c4b}\\
+  &z_s^{t,p}\le\sum_{d\in D}\sum_{r\in\KFE}y_{ds}^{r,t},
+  &&\forall\,s\in S,t\in T,p\in P
+  \tag{C5}\label{c5}\\
+  &a_d\sum_{s\in S}y_{ds}^{r,t}\le ST_{dr}^t\le b_d\sum_{s\in S}y_{ds}^{r,t},
+  &&\forall\,d\in D,r\in\KFE,t\in T
+  \tag{C6}\label{c6}\\
+  &ST_{dr}^t+TT_{ds}-M(1-y_{ds}^{r,t})\le VT_{sr}^t
+    \le ST_{dr}^t+TT_{ds}+M(1-y_{ds}^{r,t}),
+  &&\forall\,d,s,r\in\KFE,t
+  \tag{C7}\label{c7}\\
+  &y_{ds}^{r,t}\in\{0,1\},\quad
+  f_{ds}^{r,t}\ge 0,\quad
+  z_s^{t,p}\in\{0,1\},
+  &&\forall\,d,s,r,t,p
+  \tag{C8}\label{c8}
+\end{align}
+
+\subsubsection{第二階段（SE）約束}
+
+\begin{align}
+  &\sum_{j\in\NSE}\sum_{k\in\KSE}x_{ij}^{k,s,t,p}=1,
+  &&\forall\,i\in C,s\in S,t\in T,p\in P
+  \tag{C9}\label{c9}\\
+  &\sum_{j\in\NSE}x_{ij}^{k,s,t,p}-\sum_{j\in\NSE}x_{ji}^{k,s,t,p}=0,
+  &&\forall\,i\in\NSE,k\in\KSE,s,t,p
+  \tag{C10}\label{c10}\\
+  &\sum_{i\in C,j\in\NSE}x_{ij}^{k,s,t,p}(DD_i^{t,p}+DP_i^{t,p})\le\QSE,
+  &&\forall\,k\in\KSE,s\in S,t\in T,p\in P
+  \tag{C11}\label{c11}\\
+  &\sum_{j\in C}x_{sj}^{k,s,t,p}=\sum_{j\in C}x_{js}^{k,s,t,p}\le 1,
+  &&\forall\,k\in\KSE,s\in S,t\in T,p\in P
+  \tag{C12}\label{c12}\\
+  &u_i^{k,s,t,p}-u_j^{k,s,t,p}+\QSE\,x_{ij}^{k,s,t,p}\le\QSE-DD_j^{t,p},
+  &&\forall\,i,j\in C,k,s,t,p
+  \tag{C13a}\label{c13a}\\
+  &DD_i^{t,p}\le u_i^{k,s,t,p}\le\QSE,
+  &&\forall\,i\in C,k,s,t,p
+  \tag{C13b}\label{c13b}\\
+  &A_j^{k,s,t,p}\ge A_i^{k,s,t,p}+\frac{L_{ij}}{\vSE}
+    -M(1-x_{ij}^{k,s,t,p}),
+  &&\forall\,i,j\in C,k,s,t,p
+  \tag{C14}\label{c14}\\
+  &a_s^{t,p}\sum_{j\in C}x_{sj}^{k,s,t,p}\le A_s^{k,s,t,p}
+    \le b_s^{t,p}\sum_{j\in C}x_{sj}^{k,s,t,p},
+  &&\forall\,k\in\KSE,s,t,p
+  \tag{C15}\label{c15}\\
+  &x_{ij}^{k,s,t,p}\in\{0,1\},\quad
+  u_i^{k,s,t,p}\ge 0,\quad
+  A_i^{k,s,t,p}\ge 0.
+  \tag{C16}\label{c16}
+\end{align}
+
+\subsection{模型小結}
+
+完整模型為 $\min\;\{f_1,f_2,f_3\}$ 受約束 \eqref{c1}--\eqref{c16}。
+即使單一層次的 CVRP 已屬 NP-hard，本問題因其二層結構與多期特性具有
+更高的計算複雜度，精確求解在實務規模下不可行，因此採用第四章所述的
+HNSGA-III + Gurobi 分解框架。
+
+% ============================================================
+\section{所提演算法：HNSGA-III}
+\label{sec:alg}
+% ============================================================
+
+本章詳細描述 HNSGA-III，涵蓋解的編碼方式、相較於標準 NSGA-III 的四項改進，
+以及包含 Gurobi FE 求解器的完整演算法流程。
+
+\subsection{概述}
+
+HNSGA-III 以標準 NSGA-III 參考點框架~\cite{deb2014nsga3} 為基礎，
+針對第 1.3 節所識別的限制導入四項改進（見第 4.3--4.8 節）。
+演算法作用於 SE 路徑規劃層；FE 路徑在 SE 路線確定後由 Gurobi MILP 精確求解。
+
+\subsection{解的編碼方式與參數}
+
+每條染色體代表特定衛星站在特定時段所服務顧客 ID 的排列。
+對具有 $n_s$ 個衛星站、每日兩個時段的問題，演算法維護
+$2n_s$ 個獨立族群，每個族群大小 $N_{\mathrm{pop}}=30$。
+表~\ref{tab:params} 列出所有參數設定。
+
+\begin{table}[ht]
+\centering
+\caption{演算法參數設定}
+\label{tab:params}
+\begin{tblr}{
+    colspec = {l c},
+}
+\hline[0.08em]
+參數 & 設定值 \\ \hline[0.05em]
+族群大小（$N_{\mathrm{pop}}$）              & 30 \\
+演化代數                                    & 1{,}000 \\
+交叉機率 $cp$（案例 1--10）                 & 0.70 \\
+交叉機率 $cp$（案例 11--20）                & 0.55 \\
+突變機率 $mp$（案例 1--10）                 & 0.70 \\
+突變機率 $mp$（案例 11--20）                & 0.80 \\
+SE 車輛容量 $\QSE$                         & 400 kg \\
+SE 車輛速度 $\vSE$                         & 50 km/h \\
+FE 車輛容量 $\QFE$                         & 4{,}000 kg \\
+停滯閾值 $\tau$（VNS 觸發代數）             & 5 代 \\
+每案例獨立執行次數                          & 10 \\ \hline[0.08em]
+\end{tblr}
+\end{table}
+
+\subsection{族群初始化：最近鄰域啟發式}
+\label{sec:init}
+
+對族群中的每個個體，隨機選取一位顧客作為起始點，再依歐式距離依序加入
+最近未訪問顧客直到所有顧客均被訪問，形成 NN 路線。
+由於每個個體採用不同的隨機起點，$N_{\mathrm{pop}}$ 個個體
+共同覆蓋多元的地理入口，同時各自保持局部鄰近性。
+演算法~\ref{alg:nn} 詳述此程序。
+
+\begin{algorithm}[ht]
+\caption{單一族群的 NN 初始化}
+\label{alg:nn}
+\begin{algorithmic}[1]
+\Require 顧客集合 $C$、座標查找表 \textit{coord}、目標族群大小 $N_{\mathrm{pop}}$
+\Ensure 初始族群 $P$
+\State $P \leftarrow \emptyset$;\quad \textit{attempts} $\leftarrow 0$
+\While{$|P| < N_{\mathrm{pop}}$ \textbf{and} \textit{attempts}
+       $< 30\cdot N_{\mathrm{pop}}$}
+  \State $\textit{start} \leftarrow \mathrm{random}(C)$
+  \State $\textit{seq} \leftarrow [\textit{start}]$;\quad
+         $\textit{unvisited} \leftarrow C \setminus \{\textit{start}\}$
+  \While{$\textit{unvisited} \neq \emptyset$}
+    \State $\textit{next} \leftarrow
+           \arg\min_{u\in\textit{unvisited}}\mathrm{dist}(\textit{seq.last},u)$
+    \State $\textit{seq}.\mathrm{append}(\textit{next})$;\quad
+           $\textit{unvisited} \leftarrow \textit{unvisited}\setminus
+           \{\textit{next}\}$
+  \EndWhile
+  \If{$\textit{seq} \notin P$}
+    \State $P \leftarrow P \cup \{\textit{seq}\}$
+  \EndIf
+  \State $\textit{attempts} \leftarrow \textit{attempts}+1$
+\EndWhile
+\While{$|P| < N_{\mathrm{pop}}$}
+  \State $P \leftarrow P \cup \{\mathrm{random\_shuffle}(C)\}$
+\EndWhile
+\State \Return $P$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{交叉運算子}
+
+以機率 $cp$ 套用基於順序的交叉算子（OBX）：從親代 $p_1$ 隨機選取連續區段
+$[a,b]$ 複製至子代 $c_1$ 相同位置，再以 $p_2$ 的顧客順序填入其餘位置，
+跳過已放置者。$c_2$ 對稱生成。OBX 保留兩親代的相對排序資訊，
+並確保子代為有效排列。
+
+\subsection{混合突變運算子}
+
+以等機率（各 50\%）選擇兩種互補突變運算子：
+\begin{itemize}
+  \item \textbf{三點反轉（探索）}：隨機選取三個位置 $i<j<k$，
+        反轉子序列 $[i,k]$，產生巨觀層次的結構變化。
+  \item \textbf{二點交換（開發）}：隨機選取兩個位置 $a$ 與 $b$，
+        互換兩位置的顧客，產生細粒度的局部調整。
+\end{itemize}
+
+\subsection{選擇：NSGA-III 參考點框架}
+
+將親代與子代合併池以標準 NSGA-III~\cite{deb2014nsga3} 縮減至
+$N_{\mathrm{pop}}$ 個個體：（1）非支配排序將個體劃分為前緣
+$F_1,F_2,\ldots$；（2）依等級順序納入前緣直至族群將超過 $N_{\mathrm{pop}}$；
+（3）對最後一個關鍵前緣，使用均勻分佈於三目標空間規格化超平面上的
+參考點進行龕位選擇，最大化覆蓋範圍。
+
+\subsection{嵌入式 2-opt 區域搜尋}
+
+子代池由交叉與突變產生後，HNSGA-III 在 NSGA-III 選擇步驟前對每個
+子代個體施行 2-opt：依 SE 容量約束解碼染色體為車輛路線，隨機選取一條路線，
+反轉子序列 $[a,b]$；若改善後個體嚴格更優且非重複，則取代原個體。
+對所有子代（而非僅精英個體）施行 2-opt，確保每個新生成的解在參與選擇
+前均接受至少一輪路線層次改善。
+
+\subsection{停滯觸發式變動鄰域搜尋}
+\label{sec:vns}
+
+每個衛星站—時段區塊維護停滯計數器，每代最佳個體成本未改善時加一，
+有所改善時歸零。當計數器達到停滯閾值 $\tau=5$ 代時，對當前最佳個體
+執行兩步驟 VNS：
+\begin{enumerate}
+  \item \textbf{交換（Exchange）}：在同一路線中隨機選取兩位顧客並互換位置。
+  \item \textbf{重插（Relocate）}：從路線中移除一位顧客，重新插入同一路線的不同位置。
+\end{enumerate}
+若任一步驟產生嚴格更優且非重複的解，則取代當前最佳解，停滯計數器歸零。
+
+\subsection{完整演算法}
+
+\begin{algorithm}[ht]
+\caption{HNSGA-III for 2E-MD-MD-MP-CVRP-SPD}
+\label{alg:hnsga3}
+\begin{algorithmic}[1]
+\Require 案例資料、參數（$N_{\mathrm{pop}},cp,mp,\tau,\mathrm{num\_gen}$）
+\Ensure 各衛星站—時段的最佳 SE 路線；FE 成本
+\State 以 K-Means 將顧客群集至各衛星站
+\State 將顧客依時段分配至上午 / 下午
+\For{每個衛星站 $s$ 與時段 $p$}
+  \State $P_{s,p} \leftarrow \mathrm{NN\_Initialize}(\mathrm{customers}_{s,p},N_{\mathrm{pop}})$
+         \quad\Comment{見演算法~\ref{alg:nn}}
+\EndFor
+\State $\mathrm{stag}_{s,p} \leftarrow 0$（對所有 $s,p$）
+\For{$\mathrm{gen} = 1$ \To $\mathrm{num\_gen}$}
+  \For{每個族群 $P_{s,p}$}
+    \State $\mathrm{best\_before} \leftarrow \min\mathrm{cost}(P_{s,p})$
+    \If{$\mathrm{rand}() < cp$}
+      \State $O \leftarrow \mathrm{OBX}(P_{s,p})$
+    \EndIf
+    \State $O \leftarrow O \cup \mathrm{HybridMutate}(P_{s,p},mp)$
+    \State $O \leftarrow \mathrm{2\text{-}opt}(O)$
+    \State $P_{s,p} \leftarrow \mathrm{NSGA3\_Select}(P_{s,p}\cup O,N_{\mathrm{pop}})$
+    \State $\mathrm{best\_after} \leftarrow \min\mathrm{cost}(P_{s,p})$
+    \If{$\mathrm{best\_after} < \mathrm{best\_before}$}
+      \State $\mathrm{stag}_{s,p} \leftarrow 0$
+    \Else
+      \State $\mathrm{stag}_{s,p} \leftarrow \mathrm{stag}_{s,p}+1$
+    \EndIf
+    \If{$\mathrm{stag}_{s,p} \ge \tau$}
+      \State $P_{s,p} \leftarrow \mathrm{VNS}(P_{s,p})$;\quad
+             $\mathrm{stag}_{s,p} \leftarrow 0$
+    \EndIf
+  \EndFor
+\EndFor
+\State 從各 $P_{s,p}$ 中提取最佳解
+\State 依 SE 路線計算各衛星站需求量
+\State $\mathrm{FE\_cost} \leftarrow \mathrm{Gurobi\_MILP}(\mathrm{depots},\mathrm{satellites},\mathrm{demands})$
+\State \Return SE 路線、FE 成本
+\end{algorithmic}
+\end{algorithm}
+
+% ============================================================
+\section{計算實驗}
+\label{sec:exp}
+% ============================================================
+
+本章描述實驗設定、基準案例、比較演算法與參數設定，並依序呈現四項互補效能分析：
+參數敏感度、成本比較、Pareto 前緣品質及統計顯著性。
+
+\subsection{實驗設定}
+
+\subsubsection{基準案例}
+
+本研究使用 20 筆基準案例：案例 1--10 有 50 位顧客、2 個衛星站、
+1 個倉庫；案例 11--20 有 80 位顧客、3 個衛星站、1 個倉庫。
+顧客座標、需求量（同取同送）與軟性服務時間窗均以合成方式產生，
+規劃期涵蓋多日、每日兩個時段（上午與下午）的架構。
+
+\subsubsection{比較演算法}
+
+本研究比較三種演算法：
+\begin{enumerate}
+  \item \textbf{HNSGA-III}（本研究提出）：第四章所述完整演算法。
+  \item \textbf{NK-HNSGA-III}（消融基線）：以 K-Medoids 群集取代 NN
+        初始化，其餘所有元件與 HNSGA-III 完全相同，用於孤立
+        NN 初始化策略的貢獻效果。
+  \item \textbf{NSGA-III}（標準基線）：Deb \& Jain~\cite{deb2014nsga3}
+        的參考點 NSGA-III，採用隨機初始化且無任何區域搜尋改進。
+\end{enumerate}
+
+\subsubsection{實作與參數設定}
+
+所有演算法以 Python~3 實作。FE 路徑以 Gurobi MILP 求解器（版本~10.0）求解。
+所有實驗於 Intel Core i7-11800H @ 2.30~GHz（8 核心 / 16 執行緒），
+32~GB RAM，NVIDIA GeForce RTX~3070 Laptop GPU 上執行。
+每個案例各演算法獨立執行 10 次。參數依表~\ref{tab:params} 設定；
+NSGA-III 採用相同的 $N_{\mathrm{pop}}=30$ 與 1{,}000 代。
+
+\subsection{參數敏感度分析}
+
+表~\ref{tab:sensitivity} 報告逐一掃描交叉機率（$cp$）與突變機率（$mp$）
+時，代表案例 10 次執行的平均最佳成本。
+
+\begin{table}[ht]
+\centering
+\caption{HNSGA-III 參數敏感度分析}
+\label{tab:sensitivity}
+\small
+\begin{tblr}{
+    colspec = {c r r r r r r r r},
+}
+\hline[0.08em]
+\SetCell[r=2]{c} 情境
+  & \SetCell[c=4]{c} Test~A（50 位顧客，案例 1）& & &
+  & \SetCell[c=4]{c} Test~B（80 位顧客，案例 11）& & & \\
+\cline{2-5}\cline{6-9}
+  & $cp$ & 成本(\$) & $mp$ & 成本(\$)
+  & $cp$ & 成本(\$) & $mp$ & 成本(\$) \\ \hline[0.05em]
+1  & 0.85 & 6339.1 & 0.1 & 6340.1 & 0.85 & 9315.9 & 0.1 & 9406.9 \\
+2  & 0.80 & 6327.1 & 0.2 & 6341.1 & 0.80 & 9290.9 & 0.2 & 9421.9 \\
+3  & 0.75 & 6339.1 & 0.3 & 6326.1 & 0.75 & 9310.9 & 0.3 & 9315.9 \\
+4  & \textbf{*0.70} & \textbf{*6325.1} & 0.4 & 6326.1
+   & 0.70 & 9328.9 & 0.4 & 9267.9 \\
+5  & 0.65 & 6326.1 & 0.5 & 6337.1 & 0.65 & 9322.9 & 0.5 & 9352.9 \\
+6  & 0.60 & 6328.1 & 0.6 & 6327.1 & 0.60 & 9320.9 & 0.6 & 9355.9 \\
+7  & 0.55 & 6325.1 & \textbf{*0.7} & \textbf{*6325.1}
+   & \textbf{*0.55} & \textbf{*9253.9} & 0.7 & 9354.9 \\
+8  & 0.50 & 6326.1 & 0.8 & 6339.1 & 0.50 & 9267.9
+   & \textbf{*0.8} & \textbf{*9253.9} \\
+9  & 0.45 & 6337.1 & 0.9 & 6325.1 & 0.45 & 9377.9 & 0.9 & 9322.9 \\
+10 & 0.40 & 6326.1 & 1.0 & 6337.1 & 0.40 & 9326.9 & 1.0 & 9369.9 \\
+\hline[0.08em]
+\SetCell[c=9]{l} \small * 表示該欄最佳設定（最低成本）。 \\
+\end{tblr}
+\end{table}
+
+\noindent 最終選定參數：案例 1--10：$cp=0.70$，$mp=0.70$；
+案例 11--20：$cp=0.55$，$mp=0.80$。
+
+\subsection{演算法效能比較}
+
+\subsubsection{HNSGA-III 詳細結果}
+
+表~\ref{tab:detail} 呈現逐案例結果。CO$_2$\,avg 報告所有 SE / FE 路線累計的
+總碳排放量（kg），以 MEET 模型計算（$\varphi(v)\cdot\psi(v)$ 單位 g/km，
+乘以路線距離後除以 1000 轉換為 kg）。
+
+\begin{table}[ht]
+\centering
+\caption{HNSGA-III 詳細結果（每案例執行 10 次）}
+\label{tab:detail}
+\small
+\begin{tblr}{
+    colspec = {c r r r r r r r},
+}
+\hline[0.08em]
+案例 & $cp$ & $mp$ & 最佳成本(\$) & 平均成本(\$) & NV均值 & CO$_2$均值(kg) & 執行時間均值(s) \\
+\hline[0.05em]
+ 1 & 0.70 & 0.70 &  6327.1 &  6349.8 & 6.0 & 2662.99 &  53.8 \\
+ 2 & 0.70 & 0.70 &  6243.3 &  6333.7 & 5.0 & 2550.92 &  63.8 \\
+ 3 & 0.70 & 0.70 &  8013.0 &  8137.8 & 5.0 & 4417.07 &  61.0 \\
+ 4 & 0.70 & 0.70 &  6629.9 &  6643.0 & 5.0 & 2286.95 &  54.2 \\
+ 5 & 0.70 & 0.70 &  5704.5 &  5787.4 & 6.0 & 2272.82 &  55.6 \\
+ 6 & 0.70 & 0.70 & 11517.1 & 11640.7 & 5.0 & 5206.60 &  62.9 \\
+ 7 & 0.70 & 0.70 & 11438.5 & 11521.9 & 5.0 & 5896.72 &  60.0 \\
+ 8 & 0.70 & 0.70 &  7116.5 &  7286.0 & 6.0 & 3467.53 &  52.4 \\
+ 9 & 0.70 & 0.70 &  8994.0 &  9196.6 & 5.0 & 4290.86 &  61.7 \\
+10 & 0.70 & 0.70 &  9266.1 &  9382.8 & 5.0 & 3874.07 &  57.6 \\
+\hline[0.05em]
+11 & 0.55 & 0.80 &  9342.9 &  9425.1 & 7.0 & 3470.77 &  89.7 \\
+12 & 0.55 & 0.80 & 12830.9 & 12873.9 & 8.0 & 4947.96 &  90.7 \\
+13 & 0.55 & 0.80 & 12995.9 & 13239.4 & 8.0 & 5001.63 &  89.3 \\
+14 & 0.55 & 0.80 & 14124.6 & 14226.6 & 8.0 & 6413.53 & 101.3 \\
+15 & 0.55 & 0.80 & 12322.7 & 12526.1 & 8.0 & 4827.86 &  89.7 \\
+16 & 0.55 & 0.80 & 15255.4 & 15332.2 & 7.0 & 7139.80 & 102.1 \\
+17 & 0.55 & 0.80 & 13335.8 & 13619.2 & 8.0 & 5308.91 &  82.8 \\
+18 & 0.55 & 0.80 & 14211.5 & 14308.6 & 8.0 & 5403.76 &  93.2 \\
+19 & 0.55 & 0.80 & 13839.3 & 13976.2 & 8.0 & 5403.88 &  98.4 \\
+20 & 0.55 & 0.80 &  9863.0 & 10103.5 & 7.0 & 3861.22 &  86.4 \\
+\hline[0.05em]
+\textbf{均值} & & & & \textbf{10595.5} & \textbf{6.5} & \textbf{4359.38} & \textbf{75.3} \\ \hline[0.08em]
+\end{tblr}
+\end{table}
+
+\subsubsection{三演算法成本比較}
+
+表~\ref{tab:comparison} 比較三種演算法的逐案例平均成本與標準差。
+
+\begin{table}[ht]
+\centering
+\caption{成本比較：HNSGA-III vs NK-HNSGA-III vs NSGA-III}
+\label{tab:comparison}
+\small
+\begin{tblr}{
+    colspec = {c r r r r r r r r r},
+    colsep = 3pt,
+}
+\hline[0.08em]
+\SetCell[r=2]{c} 案例
+  & \SetCell[c=3]{c} HNSGA-III & &
+  & \SetCell[c=3]{c} NK-HNSGA-III & &
+  & \SetCell[c=3]{c} NSGA-III & & \\
+\cline{2-4}\cline{5-7}\cline{8-10}
+  & 最佳 & 均值 & Std & 最佳 & 均值 & Std & 最佳 & 均值 & Std \\
+\hline[0.05em]
+ 1 &  6339.1 &  6340.9 &   2.5 &  6337.1 &  6395.7 &  65.3 &  6339.1 &  6416.1 &  73.7 \\
+ 2 &  6244.3 &  6297.7 &  67.2 &  6217.3 &  6300.9 &  91.3 &  6343.3 &  6382.3 &  27.5 \\
+ 3 &  8028.0 &  8123.6 &  68.5 &  8016.0 &  8134.6 & 231.2 &  8007.0 &  8051.4 &  58.9 \\
+ 4 &  6629.9 &  6639.1 &   8.2 &  6371.9 &  6587.1 & 120.5 &  6289.9 &  6439.9 & 193.8 \\
+ 5 &  5666.5 &  5752.5 &  56.4 &  5717.5 &  5804.5 &  49.0 &  5731.5 &  5812.9 & 113.8 \\
+ 6 & 11596.1 & 11677.3 & 134.7 & 11593.1 & 11611.7 &  23.2 & 11593.1 & 11685.9 & 181.8 \\
+ 7 & 11299.5 & 11429.3 &  90.4 & 11299.5 & 11390.1 &  51.2 & 11534.5 & 11617.5 &  49.2 \\
+ 8 &  7109.5 &  7225.5 & 136.2 &  7111.5 &  7275.7 & 148.9 &  7099.5 &  7362.3 & 249.9 \\
+ 9 &  8994.0 &  9168.8 & 220.9 &  8996.0 &  9212.0 & 205.7 &  9010.0 &  9109.0 & 139.6 \\
+10 &  9285.1 &  9390.3 & 135.0 &  9266.1 &  9360.9 & 113.1 &  9285.1 &  9339.9 &  54.9 \\
+\hline[0.05em]
+11 &  9244.9 &  9360.3 &  77.8 &  9218.9 &  9376.7 &  90.5 &  9268.9 &  9507.7 & 238.2 \\
+12 & 12830.9 & 12900.5 & 124.4 & 12876.9 & 12920.5 &  76.7 & 12853.9 & 13060.7 & 242.4 \\
+13 & 13039.9 & 13265.7 & 141.7 & 12660.9 & 13047.5 & 330.6 & 12765.9 & 13324.5 & 508.8 \\
+14 & 14124.6 & 14152.6 &  36.2 & 14046.6 & 14212.0 & 124.1 & 14017.6 & 14488.6 & 347.6 \\
+15 & 12405.7 & 12502.3 &  68.6 & 12333.7 & 12518.9 & 168.9 & 12488.7 & 12732.9 & 163.2 \\
+16 & 15261.4 & 15323.2 &  45.5 & 15212.4 & 15255.6 &  41.8 & 15286.4 & 15586.2 & 331.0 \\
+17 & 13396.8 & 13556.4 & 234.9 & 13390.8 & 13689.6 & 354.4 & 13390.8 & 13852.2 & 288.1 \\
+18 & 14063.5 & 14174.7 & 107.7 & 13987.5 & 14122.1 & 183.7 & 14014.5 & 14196.7 & 224.5 \\
+19 & 13829.3 & 13953.3 &  78.4 & 13940.3 & 14000.9 &  48.2 & 14183.3 & 14437.1 & 307.4 \\
+20 &  9990.0 & 10116.0 &  95.5 & 10089.0 & 10160.0 &  74.5 & 10029.0 & 10245.0 & 147.2 \\
+\hline[0.05em]
+\textbf{均值} & & \textbf{10567.5} & \textbf{96.5}
+             & & \textbf{10568.8} & \textbf{129.6}
+             & & \textbf{10682.4} & \textbf{197.1} \\ \hline[0.08em]
+\end{tblr}
+\end{table}
+
+HNSGA-III 取得最低平均成本（10{,}567.5），較 NSGA-III 改善 1.1\%。
+標準差降低 51.0\%（96.5 對 197.1），顯示多次執行間解的一致性大幅提升。
+HNSGA-III 在 20 個案例中有 16 個優於 NSGA-III 的平均成本。
+
+\subsection{Pareto 前緣品質指標}
+
+表~\ref{tab:pareto} 以四項互補指標比較三種演算法的 Pareto 前緣品質
+（20 個案例的平均值）。
+
+\begin{table}[ht]
+\centering
+\caption{Pareto 前緣品質指標（20 個案例平均值）}
+\label{tab:pareto}
+\begin{tblr}{
+    colspec = {l r r r r r r},
+}
+\hline[0.08em]
+演算法 & 平均成本 & 平均Std & SP$\downarrow$ & HV$\uparrow$ & GD$\downarrow$ & IGD$\downarrow$ \\
+\hline[0.05em]
+HNSGA-III    & 10{,}567.5 &  96.5 & 0.1535 & 0.7995 & 0.1956 & 0.2174 \\
+NK-HNSGA-III & 10{,}568.8 & 129.6 & 0.1549 & 0.7540 & 0.2211 & 0.2018 \\
+NSGA-III     & 10{,}682.4 & 197.1 & 0.1924 & 0.7635 & 0.3076 & 0.2087 \\ \hline[0.08em]
+\end{tblr}
+\end{table}
+
+HNSGA-III 在五項指標中表現優於 NSGA-III：HV 提升 $+4.7\%$、
+GD 降低 $-36.4\%$、SP 改善 $-20.2\%$。與 NK-HNSGA-III 相比可孤立
+NN 初始化的效果：兩者平均成本幾乎相同（差距 $<0.01\%$），但 HNSGA-III
+具有明顯更佳的穩定性（Std: 96.5 對 129.6）、超體積（0.7995 對 0.7540）
+與世代距離（0.1956 對 0.2211）。
+
+\subsection{統計分析}
+
+以 Mann-Whitney U 檢定（雙尾，$\alpha=0.05$）對 HNSGA-III 與
+NSGA-III 每案例各 10 次成本樣本進行檢定。
+
+\begin{table}[ht]
+\centering
+\caption{Mann-Whitney U 檢定：HNSGA-III vs NSGA-III（僅列顯著案例）}
+\label{tab:stat}
+\begin{tblr}{
+    colspec = {c r l l},
+}
+\hline[0.08em]
+案例 & $p$ 值 & 顯著？ & 方向 \\ \hline[0.05em]
+7        & 0.0119  & * & HNSGA-III 較佳 \\
+19       & 0.0079  & * & HNSGA-III 較佳 \\
+其餘案例 & $>0.05$ & — & — \\ \hline[0.08em]
+\SetCell[c=4]{l} \small * $p<0.05$ \\
+\end{tblr}
+\end{table}
+
+2 個案例達到統計顯著改善。集合覆蓋（SC）分析顯示，HNSGA-III 的解支配了
+58.0\% 的 NSGA-III 非支配解，反向僅 46.0\%，方向性優勢達 12 個百分點。
+
+\subsection{衛星站配置分析}
+
+表~\ref{tab:satellite} 報告 30 個規劃日中各日以最低成本為準時，
+啟用衛星站數量（1、2 或 3 個）的最優選擇。
+
+\begin{table}[ht]
+\centering
+\caption{各規劃日最優啟用衛星站數量（HNSGA-III）}
+\label{tab:satellite}
+\small
+\begin{tblr}{
+    colspec = {c r r r r},
+}
+\hline[0.08em]
+日次 & 1站(\$) & 2站(\$) & 3站(\$) & 最優 \\ \hline[0.05em]
+ 1 &  *4324.7 &  5102.0 &  4559.8 & 1 \\
+ 2 &  7352.5  & *5757.8 &  6765.9 & 2 \\
+ 3 &  4896.0  &  4900.1 & *4304.4 & 3 \\
+ 4 &  5180.2  & *4805.3 &  5759.6 & 2 \\
+ 5 & *5121.7  &  6030.5 &  5808.1 & 1 \\
+ 6 &  6076.7  & *5478.1 &  6416.4 & 2 \\
+ 7 &  5124.2  &  6289.5 & *4825.9 & 3 \\
+ 8 &  7216.9  &  8612.8 & *6925.1 & 3 \\
+ 9 & *7005.7  &  8339.8 &  8183.2 & 1 \\
+10 &  6351.5  & *5512.8 &  6569.3 & 2 \\
+11 & *9099.7  & 10495.9 &  9859.7 & 1 \\
+12 &  8751.5  & 10902.7 & *8388.4 & 3 \\
+13 &  8988.2  & *8057.3 &  9581.8 & 2 \\
+14 &  6035.9  & *5970.8 &  7857.3 & 2 \\
+15 &  7445.9  &  8983.5 & *6771.6 & 3 \\
+16 & *8945.7  & 10201.6 &  9103.1 & 1 \\
+17 & *9379.0  & 11229.5 &  9532.3 & 1 \\
+18 &  6913.1  &  6784.3 & *6590.4 & 3 \\
+19 &  8935.2  & 10130.7 & *8599.5 & 3 \\
+20 &*11379.6  & 14687.6 & 12519.2 & 1 \\
+21 &*11080.8  & 13100.5 & 14045.3 & 1 \\
+22 & 11021.5  & 11733.9 & *8685.9 & 3 \\
+23 &*11269.2  & 12508.1 & 12215.5 & 1 \\
+24 & 13387.6  & 14106.5 & *9477.4 & 3 \\
+25 &  8007.1  &  7175.1 & *7097.0 & 3 \\
+26 &*10667.8  & 11552.2 & 11817.6 & 1 \\
+27 &*12104.1  & 13799.2 & 13255.6 & 1 \\
+28 & 11929.6  & 12271.2 & *8499.7 & 3 \\
+29 & *9924.8  & 12867.8 & 10755.7 & 1 \\
+30 &*11938.9  & 13215.1 & 12532.9 & 1 \\
+\hline[0.05em]
+\SetCell[c=5]{l} \textbf{分佈：}1站：13日（43\%），2站：6日（20\%），3站：11日（37\%） \\
+\hline[0.08em]
+\SetCell[c=5]{l} \small * 表示該日最低成本。 \\
+\end{tblr}
+\end{table}
+
+最優衛星站數量每日差異顯著：1站在 43\% 的日期最優、3站在 37\%、2站在 20\%，
+確認衛星站配置無法事先固定，多期規劃建模對捕捉每日運營彈性至關重要。
+
+% ============================================================
+\section{結論}
+\label{sec:conc}
+% ============================================================
+
+本章總結研究貢獻，討論所提框架的限制，並展望未來研究方向。
+
+\subsection{研究貢獻總結}
+
+本研究針對 2E-MD-MD-MP-CVRP-SPD 提出完整的多目標最佳化框架，同時最小化
+總運輸成本（$f_1$）、總車輛派遣數（$f_2$）與總碳排放量（$f_3$）。
+為求解此三目標問題，本研究提出 HNSGA-III，在標準 NSGA-III 框架基礎上
+引入四項針對性改進：NN 初始化、混合突變（三點反轉 + 二點交換）、
+全體子代 2-opt 局部搜尋，以及停滯觸發式 VNS（$\tau=5$）。
+碳排放量依 MEET 模型~\cite{hickman1999} 計算；FE 路徑在 SE 路徑由 HNSGA-III
+確定後，以 Gurobi MILP 求解器精確求解。
+
+20 組基準案例的主要實驗發現：
+\begin{itemize}
+  \item \textbf{成本與穩定性}：HNSGA-III 達到三種演算法中最低的平均成本
+        （\$10{,}567.5），較 NSGA-III 改善 1.1\%；標準差降低 51.0\%
+        （96.5 對 197.1），顯示更高的執行一致性。
+  \item \textbf{Pareto 前緣品質}：HNSGA-III 在超體積
+        （HV\,=\,0.7995 對 0.7635，$+4.7\%$）、解的分佈均勻性
+        （SP\,=\,0.1535 對 0.1924，$-20.2\%$）及世代距離
+        （GD\,=\,0.1956 對 0.3076，$-36.4\%$）三項指標均優於 NSGA-III。
+  \item \textbf{支配覆蓋率}：HNSGA-III 的解支配了 58.0\% 的 NSGA-III
+        非支配解，反向僅 46.0\%，方向性優勢達 12 個百分點。
+  \item \textbf{統計顯著性}：Mann-Whitney U 檢定在 20 個案例中的 2 個
+        （案例 7 與 19）達到統計顯著的成本改善（$p<0.05$）；
+        HNSGA-III 在 20 個案例中的 16 個（80\%）取得更低平均成本。
+  \item \textbf{NN 初始化貢獻}：HNSGA-III 與 NK-HNSGA-III 的平均成本
+        幾乎相同（差距 $<0.01\%$），但 HNSGA-III 具備更佳的執行一致性
+        （Std: 96.5 對 129.6）、超體積（0.7995 對 0.7540）與世代距離
+        （0.1956 對 0.2211），證實 NN 初始化提升了初始族群品質。
+  \item \textbf{衛星站配置}：最優啟用衛星站數量每日差異顯著（1站：43\%，
+        2站：20\%，3站：37\%），確認多期規劃建模的必要性。
+\end{itemize}
+
+\subsection{研究限制}
+
+\begin{enumerate}
+  \item \textbf{軟性時間窗}：模型採用懲罰式軟性時間窗；擴展至硬性時間窗
+        需要額外的可行性修復機制。
+  \item \textbf{合成案例}：實驗使用合成生成的案例，尚未在真實物流數據上驗證。
+  \item \textbf{序列分解}：FE 與 SE 層次依序最佳化而非聯合最佳化，可能在
+        FE 路線決策強烈影響 SE 可行性時未達完全整合建模的最優性。
+  \item \textbf{同質車隊假設}：未考慮異質車輛、車隊規模決策或電動車的
+        續航里程限制。
+  \item \textbf{統計檢定功效}：每案例 10 次獨立執行對 Mann-Whitney 檢定
+        的統計功效有限。
+\end{enumerate}
+
+\subsection{未來研究方向}
+
+\begin{enumerate}
+  \item \textbf{硬性時間窗擴展}：開發時間窗感知的解碼策略或無懲罰
+        可行性修復機制。
+  \item \textbf{真實數據驗證}：將框架應用於實際物流數據集，包括城市
+        最後一哩配送網路。
+  \item \textbf{FE-SE 聯合最佳化}：開發協同演化或雙層最佳化方法，
+        同時最佳化兩個階層的路線。
+  \item \textbf{綠色車輛整合}：擴展至異質或電動車隊，納入續航限制、
+        充電排程及隨時間變化的電力排放因子。
+  \item \textbf{動態與隨機需求}：透過隨機規劃或強健最佳化框架，
+        納入顧客需求、行駛時間或衛星站可用性的不確定性。
+  \item \textbf{強化 VNS 運算子}：探索更多鄰域結構（如路線間交換、
+        跨衛星站重定位），拓展可搜索的解空間。
+\end{enumerate}
+
+% ============================================================
+\printbibliography
+% ============================================================
+
+\end{document}

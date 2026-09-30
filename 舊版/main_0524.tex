@@ -1,0 +1,1134 @@
+% ============================================================
+%  main.tex  —  Overleaf master file (wmt-template compliant)
+%  Paper: Multi-Objective Optimization of 2E-MD-MD-MP-CVRP-SPD
+%         using Hybrid NSGA-III (HNSGA-III)
+% ============================================================
+\documentclass[11pt, a4paper]{article}
+
+% ====== Preamble ======
+\usepackage{wmt-template}
+\usepackage[section]{placeins}   % keeps floats within their section
+
+\addbibresource{references.bib}
+\graphicspath{{./}{./figures/}}
+
+\algnewcommand{\To}{\textbf{to }}
+\algnewcommand{\Step}{\textbf{step }}
+
+\studentname{[Author Name]}
+
+% ── Custom math shorthands ────────────────────────────────────────
+\newcommand{\KFE}{K_{\mathrm{FE}}}
+\newcommand{\KSE}{K_{\mathrm{SE}}}
+\newcommand{\NFE}{N_{\mathrm{FE}}}
+\newcommand{\NSE}{N_{\mathrm{SE}}}
+\newcommand{\QFE}{Q_{\mathrm{FE}}}
+\newcommand{\QSE}{Q_{\mathrm{SE}}}
+\newcommand{\cFE}{c_{\mathrm{FE}}}
+\newcommand{\cSE}{c_{\mathrm{SE}}}
+\newcommand{\eSE}{e_{\mathrm{SE}}}
+\newcommand{\vSE}{v_{\mathrm{SE}}}
+\newcommand{\vFE}{v_{\mathrm{FE}}}
+\newcommand{\CFE}{C_{\mathrm{FE}}}
+\newcommand{\CSE}{C_{\mathrm{SE}}}
+\newcommand{\EFE}{E_{\mathrm{FE}}}
+\newcommand{\ESE}{E_{\mathrm{SE}}}
+
+\algrenewcommand\algorithmicindent{1.2em}
+\numberwithin{equation}{section}
+
+\title{\textbf{Multi-Objective Optimization of the Two-Echelon Multi-Depot\\
+Multi-Day Multi-Period Capacitated Vehicle Routing Problem\\
+with Simultaneous Pickup and Delivery Using Hybrid NSGA-III}}
+
+\author{[Author Names]}
+\date{}
+
+% ============================================================
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+% ─────────────────────────────────────────────────────────────
+\begin{abstract}
+This study addresses the two-echelon multi-depot multi-day multi-period
+capacitated vehicle routing problem with simultaneous pickup and delivery
+(2E-MD-MD-MP-CVRP-SPD), a challenging logistics optimization problem that
+simultaneously minimizes total transportation cost, vehicle count, and carbon
+emissions.  To solve this three-objective problem, a Hybrid Non-dominated
+Sorting Genetic Algorithm~III (HNSGA-III) is proposed, incorporating four
+enhancements over standard NSGA-III: (1)~nearest-neighbor (NN) initialization
+for geographically structured starting populations; (2)~hybrid mutation
+combining 3-point inversion and 2-point swap operators; (3)~embedded 2-opt
+local search applied to all offspring per generation; and (4)~stagnation-triggered
+Variable Neighborhood Search (VNS) using exchange and relocate operators to
+escape local optima.  Carbon emissions are quantified using the MEET
+(Methodology for calculating Transport Emissions and Energy consumption)
+framework~\cite{hickman1999}.  First-echelon routing is solved exactly via a
+Gurobi-based MILP solver after the second-echelon routes are optimized by
+HNSGA-III.
+
+Experiments on 20 benchmark instances (50-customer and 80-customer groups,
+10 independent runs each) compare HNSGA-III against NK-HNSGA-III (a K-Medoids
+initialization variant) and standard NSGA-III\@.  HNSGA-III achieves the lowest
+average cost (\$10{,}567.5) among all algorithms, outperforming NSGA-III by
+1.1\% while reducing solution variance by 51.0\% (Std: 96.5 vs.\ 197.1).
+Pareto front quality metrics confirm further advantages: HNSGA-III achieves
+superior hypervolume (HV\,=\,0.7995 vs.\ 0.7635), better solution spacing
+(SP\,=\,0.1535 vs.\ 0.1924), and a 36.4\% lower generational distance
+(GD\,=\,0.1956 vs.\ 0.3076) than NSGA-III\@.  Set coverage analysis shows
+that 58.0\% of NSGA-III's Pareto solutions are dominated by HNSGA-III,
+compared to 46.0\% in the reverse direction.  Statistically significant cost
+improvements (Mann-Whitney U, $p<0.05$) are confirmed in 2 of 20 instances.
+These results demonstrate that the proposed HNSGA-III effectively improves
+solution quality, consistency, and Pareto front coverage for large-scale green
+two-echelon logistics optimization.
+
+\medskip
+\noindent\textbf{Keywords:} Two-echelon vehicle routing problem;
+Multi-objective optimization; NSGA-III; Nearest-neighbor initialization;
+Variable neighborhood search; Carbon emissions; Hypervolume; Green logistics
+\end{abstract}
+
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+% ============================================================
+
+This section establishes the motivation for studying the 2E-MD-MD-MP-CVRP-SPD,
+defines the specific problem considered, identifies limitations in existing
+solution approaches, and summarizes the contributions and organization of
+the paper.
+
+\subsection{Background and Motivation}
+
+The global logistics industry has grown into one of the most critical pillars
+of modern economies.  With the global logistics market projected to surpass
+USD~12.6 trillion by~2027~\cite{grandview2020}, the pressure to deliver goods
+efficiently, cost-effectively, and sustainably has never been greater.  The
+rise of e-commerce, the proliferation of urban distribution centers, and
+increasingly dynamic customer demand patterns have collectively transformed
+last-mile and two-echelon logistics into highly complex optimization challenges.
+
+Vehicle Routing Problems (VRPs) constitute a fundamental class of combinatorial
+optimization problems in logistics.  Among their extensions, the two-echelon
+vehicle routing problem (2E-VRP) has attracted growing research interest as it
+captures the two-tier distribution structure commonly observed in urban freight
+systems: a first echelon connects central depots to intermediate facilities
+(satellites), while a second echelon handles deliveries from satellites to end
+customers.  Incorporating real-world constraints such as multiple depots,
+multi-day planning horizons, multiple daily time periods, vehicle capacity
+limits, and simultaneous pickup and delivery yields the
+2E-MD-MD-MP-CVRP-SPD, a problem formulation that closely reflects operational
+realities faced by modern logistics providers.
+
+Beyond economic efficiency, environmental sustainability has become a central
+concern for the logistics sector.  Transportation is responsible for
+approximately 23\% of global CO$_2$ emissions~\cite{iea2022}, and regulatory
+bodies worldwide are tightening emission standards.  Green logistics---the
+integration of environmental objectives into route planning---has therefore
+emerged as an important research direction.  In this study, carbon emissions
+are quantified using the MEET framework~\cite{hickman1999}, and minimizing
+carbon output is embedded as a third optimization objective alongside total
+cost and vehicle count.
+
+\subsection{Problem Overview}
+
+The 2E-MD-MD-MP-CVRP-SPD considered in this study incorporates the following
+real-world features:
+\begin{enumerate}
+  \item \textit{Two-echelon structure}: First-echelon vehicles transport goods
+        from central depots to satellite facilities; second-echelon vehicles
+        serve customers from satellites within prescribed time windows.
+  \item \textit{Multi-depot}: Multiple central depots and multiple satellite
+        locations are available, requiring joint optimization of depot-to-satellite
+        and satellite-to-customer assignments.
+  \item \textit{Multi-day and multi-period}: The planning horizon spans multiple
+        days, and each day is divided into multiple service periods
+        (e.g., morning and afternoon), with customer demand varying across both
+        days and periods.
+  \item \textit{Simultaneous pickup and delivery (SPD)}: Each second-echelon
+        vehicle may collect returns from customers while delivering goods on the
+        same route, demanding feasible load sequencing.
+  \item \textit{Three-objective optimization}: The model simultaneously minimizes
+        (i)~total transportation cost, (ii)~total number of vehicles deployed,
+        and (iii)~total carbon emissions, forming a true multi-objective problem
+        with non-trivial trade-offs.
+\end{enumerate}
+
+\subsection{Limitations of Existing Approaches}
+
+Existing solution approaches for 2E-VRP variants predominantly rely on either
+exact optimization (e.g., Gurobi-based MILP, branch-and-price) or classical
+metaheuristics (e.g., NSGA-II, adaptive large neighborhood search).  While
+exact methods guarantee optimality, they scale poorly beyond small instances.
+Classical evolutionary algorithms such as NSGA-II and standard NSGA-III often
+suffer from:
+\begin{enumerate}[label=(\roman*)]
+  \item Poor initial solution quality due to random initialization;
+  \item Insufficient diversity maintenance in later evolutionary stages;
+  \item Weak local refinement capability at the chromosome level;
+  \item Limited robustness across independent runs, producing high solution
+        variance.
+\end{enumerate}
+
+\subsection{Proposed Approach and Contributions}
+
+This study proposes HNSGA-III, which addresses the four limitations above
+through four targeted enhancements:
+\begin{enumerate}
+  \item \textbf{NN Initialization}: Constructs each initial individual as a
+        geographically coherent nearest-neighbor tour with a randomly chosen
+        starting customer.
+  \item \textbf{Hybrid Mutation}: Alternates between 3-point inversion
+        (exploration) and 2-point swap (exploitation), each selected with
+        equal probability.
+  \item \textbf{Embedded 2-opt}: Applied to every offspring before NSGA-III
+        selection, raising the average quality of the candidate pool.
+  \item \textbf{Stagnation-Triggered VNS}: Exchange and relocate operators
+        are applied to the best individual when no improvement occurs for
+        $\tau=5$ consecutive generations.
+\end{enumerate}
+
+The main contributions are: (1)~a comprehensive three-objective
+2E-MD-MD-MP-CVRP-SPD formulation integrating the MEET carbon model;
+(2)~the HNSGA-III algorithm with the four enhancements above; (3)~a hybrid
+two-tier solution framework coupling HNSGA-III (SE layer) with Gurobi MILP
+(FE layer); and (4)~empirical evaluation using six performance metrics across
+20 benchmark instances.
+
+\subsection{Paper Organization}
+
+\Cref{sec:lit} reviews related literature.  \Cref{sec:model} presents the
+mathematical model.  \Cref{sec:alg} describes HNSGA-III\@.  \Cref{sec:exp}
+reports computational experiments.  \Cref{sec:conc} concludes.
+
+% ============================================================
+\section{Literature Review}
+\label{sec:lit}
+% ============================================================
+
+The following subsections survey the principal literature streams relevant to
+the 2E-MD-MD-MP-CVRP-SPD: two-echelon routing and its structural extensions,
+green VRP with carbon emission modeling, multi-objective evolutionary
+algorithms applied to routing, and local search hybridization.  The section
+closes by positioning the present work relative to the identified research gap.
+
+\subsection{Two-Echelon VRP and Extensions}
+
+The Vehicle Routing Problem, introduced by Dantzig and
+Ramser~\cite{dantzig1959}, is among the most extensively studied problems in
+operations research.  The Two-Echelon VRP (2E-VRP), formalized by
+Perboli et al.~\cite{perboli2011} and Crainic et al.~\cite{crainic2011},
+introduces intermediate satellite facilities between depots and customers.
+Sluijk et al.~\cite{sluijk2023} provide a comprehensive survey systematically
+categorizing 2E-VRP variants.
+
+The SPD extension requires SE vehicles to collect returns from customers while
+delivering goods on the same route.  Belgin et al.~\cite{belgin2018} proposed
+one of the first exact models for 2E-CVRP-SPD\@.  Zhou
+et al.~\cite{zhou2022spd} extended this with time window constraints, and
+Li et al.~\cite{li2022stoch} addressed 2E-VRP-SPD with stochastic demand.
+
+The multi-depot (MD) extension recognizes that real logistics networks feature
+multiple warehouses.  Kancharla and Ramadurai~\cite{kancharla2019} formulated
+MD-2E-VRP for urban freight, showing that coordinated satellite selection
+significantly reduces total cost.  Zhou et al.~\cite{zhou2018md} addressed
+MD-2E-VRP with time windows via a hybrid genetic algorithm.
+
+The multi-period dimension extends the planning horizon to multiple days.
+Mourgaya and Vanderbeck~\cite{mourgaya2007} proposed a column generation
+approach for multi-period VRP\@.  Wen et al.~\cite{wen2010} developed a
+multi-period two-echelon model for city logistics.  Wang
+et al.~\cite{wang2021} further addressed multi-depot, multi-period 2E-VRP
+for cold-chain logistics, and Wang et al.~\cite{wang2023} extended this to
+collaborative satellite sharing.  No prior work simultaneously addresses all
+five characteristics of the 2E-MD-MD-MP-CVRP-SPD.
+
+\subsection{Green VRP and Carbon Emission Modeling}
+
+Transportation accounts for approximately 23\% of global CO$_2$
+emissions~\cite{iea2022}.  The MEET model~\cite{hickman1999} provides a
+comprehensive multi-component emission estimation framework, decomposing
+vehicle emissions into the base emission rate function $\varphi(v)$, the load
+correction function $\psi(v)$, and the road slope correction $r(v)$.
+Li et al.~\cite{li2025} applied MEET to a multi-objective green VRP with time
+windows, demonstrating that MEET-based objectives produce qualitatively
+different Pareto frontiers compared to simple distance-based proxies.
+
+Green 2E-VRP research has grown substantially.  Jepsen
+et al.~\cite{jepsen2013} introduced a branch-and-cut exact method for the
+symmetric two-echelon capacitated VRP\@.  Multi-objective green VRP
+formulations show that Pareto-optimal trade-off frontiers between cost and
+emissions are non-trivial and contain solutions qualitatively superior to
+single-objective optima.
+
+\subsection{Multi-Objective Evolutionary Algorithms for VRP}
+
+NSGA-II~\cite{deb2002nsga2} introduced fast non-dominated sorting and
+crowding-distance-based selection, becoming the de facto reference MOEA for VRP
+applications.  NSGA-III~\cite{deb2014nsga3} addresses its limitation in
+three-or-more-objective problems by replacing crowding distance with structured
+reference points uniformly distributed on a normalized hyperplane.
+
+Standard NSGA-III exhibits weaknesses for VRP: random initialization produces
+low-quality starting solutions, standard operators lack route-level insight,
+and no explicit local-optima escape mechanism exists.  These weaknesses have
+motivated improved NSGA-III variants incorporating transfer learning-based
+initialization~\cite{improvedNSGA3transfer}, deep Q-learning guided operator
+selection~\cite{dqlNSGA3}, and co-evolutionary strategies~\cite{coevNSGA3}.
+
+Li et al.~\cite{li2025} proposed INSGA-III for the MOGVRPTW\@.  The method
+incorporates NN initialization and selective 2-opt on elite individuals,
+achieving significant cost reductions over NSGA-II and NSGA-III on Solomon
+benchmarks.
+The proposed HNSGA-III extends this to the substantially more complex
+2E-MD-MD-MP-CVRP-SPD by incorporating hybrid mutation with
+stagnation-triggered VNS, applying 2-opt to \emph{all} offspring, and
+coupling the SE optimizer with exact FE MILP\@.
+
+\subsection{Local Search and Hybrid Metaheuristics for VRP}
+
+The 2-opt operator~\cite{lin1965} reverses a route segment to eliminate
+crossing arcs and remains one of the most computationally efficient route
+improvement procedures.  Embedding 2-opt within a genetic algorithm's
+generational cycle consistently improves solution quality versus
+post-processing-only application~\cite{li2025}.
+
+The Or-opt family~\cite{or1976}, including relocate and exchange operators,
+extends 2-opt by allowing non-reversal moves.  The VNS
+framework~\cite{hansen2001} alternates between neighborhoods of increasing
+size, preventing premature convergence.  Adaptive Large Neighborhood
+Search~\cite{ropke2006} provides a general perturbation framework, though its
+operator-selection overhead adds implementation complexity relative to the
+targeted VNS used in this study.
+
+The k-means clustering heuristic is widely used for customer-satellite
+assignment in multi-satellite routing, providing a fast geometric partitioning
+consistent with approaches reported for multi-satellite
+2E-VRP~\cite{wang2021,wang2023}.
+
+\subsection{Research Gap and Positioning}
+
+No prior work simultaneously addresses: (1)~two-echelon structure with
+multiple depots and satellites; (2)~multi-day, multi-period planning with
+period-dependent demand; (3)~SPD at the second echelon; (4)~three competing
+objectives via MEET; and (5)~a hybrid MOEA combining NN initialization,
+hybrid mutation, 2-opt on all offspring, stagnation-triggered VNS, and exact
+FE MILP\@.  The 2E-MD-MD-MP-CVRP-SPD and HNSGA-III proposed in this study
+close this gap.
+
+% ============================================================
+\section{Problem Statement and Mathematical Model}
+\label{sec:model}
+% ============================================================
+
+This section formally defines the 2E-MD-MD-MP-CVRP-SPD, states the modeling
+assumptions, introduces notation, and presents the complete three-objective
+mathematical formulation including all first- and second-echelon constraints.
+
+\subsection{Problem Statement}
+
+The 2E-MD-MD-MP-CVRP-SPD is a multi-objective logistics optimization problem
+defined over a two-level distribution network.  At the first echelon (FE),
+large-capacity trucks transport consolidated freight from depots to satellites.
+At the second echelon (SE), smaller vehicles depart from satellites to serve
+customers simultaneously with deliveries and pickups.  The planning horizon
+spans multiple days ($t\in T$), each divided into multiple service periods
+($p\in P$), with customer demand varying across days and periods.
+
+The system operates in three stages: (i)~k-means preprocessing clusters
+customers to satellites; (ii)~HNSGA-III determines SE vehicle routes for each
+satellite-period block; (iii)~a Gurobi MILP solver optimizes FE routing given
+the SE solution.  Three objectives are minimized simultaneously:
+$f_1$~(total transportation cost), $f_2$~(total vehicle count), and
+$f_3$~(total carbon emissions via MEET).
+
+\subsection{Assumptions}
+
+\begin{enumerate}
+  \item All goods collected from customers are temporarily stored at the
+        serving satellite before being returned to depots.
+  \item Each customer has a soft service time window $[a_i^{t,p},\,b_i^{t,p}]$;
+        early or late arrival incurs a penalty cost.
+  \item The planning horizon covers multiple operational days, each subdivided
+        into multiple periods; customers may appear at different locations on
+        different days.
+  \item Customer locations, delivery demands, and pickup quantities are known
+        for each day and period.
+  \item Each depot has sufficient stock capacity to supply all customer demands.
+  \item Satellites are not subject to throughput capacity constraints.
+  \item The total load (delivery + pickup) on any SE vehicle route must not
+        exceed $\QSE$.
+  \item Each SE vehicle route must originate from and return to the same
+        satellite.
+  \item Delivery and pickup operations for each customer are performed
+        simultaneously by the same vehicle on the same visit.
+  \item SE vehicles cannot serve customers assigned to different satellites
+        on a single route.
+  \item All FE trucks are homogeneous with maximum load capacity $\QFE$;
+        any truck may serve any depot-to-satellite arc.
+  \item All SE vehicles are homogeneous with maximum load capacity $\QSE$;
+        SE vehicles travel at fixed speed $\vSE = 50$~km/h.
+\end{enumerate}
+
+\subsection{Notation}
+
+\paragraph{Sets and indices.}
+
+\begin{tblr}{l l}
+  $D,\,d$          & Set of depots; $d$ is the index \\
+  $S,\,s$          & Set of satellites; $s$ is the index \\
+  $C,\,i,j$        & Set of customers; $i,j$ are indices \\
+  $T,\,t$          & Set of planning days; $t$ is the index \\
+  $P,\,p$          & Set of service periods; $p$ is the index \\
+  $\KFE,\,r$       & Set of FE trucks; $r$ is the index \\
+  $\KSE,\,k$       & Set of SE vehicles; $k$ is the index \\
+  $\NFE = D\cup S$ & Node set for FE routing \\
+  $\NSE = S\cup C$ & Node set for SE routing \\
+\end{tblr}
+
+\paragraph{Parameters.}
+
+\begin{tblr}{l l}
+  $L_{ij}$              & Distance from node $i$ to node $j$ (km) \\
+  $\vSE$                & SE vehicle speed (= 50 km/h) \\
+  $\vFE$                & FE vehicle speed (km/h) \\
+  $TT_{ds}$             & Travel time from depot $d$ to satellite $s$ \\
+  $DD_i^{t,p}$          & Delivery demand of customer $i$ on day $t$, period $p$ (kg) \\
+  $DP_i^{t,p}$          & Pickup demand of customer $i$ on day $t$, period $p$ (kg) \\
+  $DD_s^t$              & Total delivery demand at satellite $s$ on day $t$ (kg) \\
+  $DP_s^t$              & Total pickup demand at satellite $s$ on day $t$ (kg) \\
+  $\QSE$                & SE vehicle capacity (= 400 kg) \\
+  $\QFE$                & FE vehicle capacity (= 4{,}000 kg) \\
+  $\cSE$                & SE unit transportation cost (= 0.05 \$/km) \\
+  $\cFE$                & FE unit transportation cost (= 0.2 \$/km) \\
+  $F_r$                 & FE truck fixed deployment cost (= 80 \$) \\
+  $\xi_e,\,\xi_l$       & Early/late arrival penalty rates (= 0.2 \$/min each) \\
+  $a_d,\,b_d$           & Operating time window of depot $d$ \\
+  $a_s^{t,p},b_s^{t,p}$ & Time window of satellite $s$ on day $t$, period $p$ \\
+  $a_i^{t,p},b_i^{t,p}$ & Service time window of customer $i$ on day $t$, period $p$ \\
+\end{tblr}
+
+\paragraph{Decision variables.}
+
+\begin{tblr}{l l}
+  $x_{ij}^{k,s,t,p}\in\{0,1\}$           & 1 if SE vehicle $k$ travels arc $(i,j)$ at
+                                             satellite $s$, day $t$, period $p$ \\
+  $u_i^{k,s,t,p}\ge 0$                   & Cumulative load of SE vehicle $k$ at customer $i$ \\
+  $A_i^{k,s,t,p}\ge 0$                   & Arrival time of SE vehicle $k$ at node $i$ \\
+  $y_{ds}^{r,t}\in\{0,1\}$               & 1 if FE truck $r$ travels arc $(d,s)$ on day $t$ \\
+  $f_{ds}^{r,t}\ge 0$                    & Freight volume on arc $(d,s)$ by truck $r$, day $t$ \\
+  $ST_{dr}^t\ge 0$                       & Departure time of FE truck $r$ from depot $d$,
+                                            day $t$ \\
+  $VT_{sr}^t\ge 0$                       & Arrival time of FE truck $r$ at satellite $s$,
+                                            day $t$ \\
+  $z_s^{t,p}\in\{0,1\}$                  & 1 if satellite $s$ is open on day $t$, period $p$ \\
+  $\delta_r^{\mathrm{FE},t}\in\{0,1\}$   & 1 if FE truck $r$ is deployed on day $t$ \\
+  $\delta_k^{\mathrm{SE},t,p}\in\{0,1\}$ & 1 if SE vehicle $k$ is deployed on day $t$,
+                                            period $p$ \\
+\end{tblr}
+
+\subsection{Mathematical Model}
+
+\subsubsection{Objective Functions}
+
+\paragraph{(f1) Total cost minimization.}
+FE transportation cost $\CFE$ includes a distance-proportional term and a
+per-truck fixed deployment cost:
+\begin{equation}
+  \CFE = \sum_{d\in D}\sum_{s\in\NFE}\sum_{r\in\KFE}\sum_{t\in T}
+           y_{ds}^{r,t}\,L_{ds}\,\cFE
+         + \sum_{r\in\KFE}\sum_{t\in T}\delta_r^{\mathrm{FE},t}\,F_r
+  \label{eq:CFE}
+\end{equation}
+where $\cFE = 0.2$ \$/km and $F_r = 80$ \$.  SE cost $\CSE$ combines
+distance-proportional transport and soft time-window penalties:
+\begin{equation}
+  \CSE = \sum_{i,j\in\NSE}\sum_{k\in\KSE}\sum_{s\in S}\sum_{t\in T}\sum_{p\in P}
+           x_{ij}^{k,s,t,p}\,L_{ij}\,\cSE
+         + \sum_{i\in C}\sum_{k\in\KSE}\sum_{s\in S}\sum_{t\in T}\sum_{p\in P}
+           \Bigl[\xi_e\max\!\bigl(a_i^{t,p}-A_i^{k,s,t,p},0\bigr)
+                +\xi_l\max\!\bigl(A_i^{k,s,t,p}-b_i^{t,p},0\bigr)\Bigr]
+  \label{eq:CSE}
+\end{equation}
+where $\cSE=0.05$ \$/km; $\xi_e=\xi_l=0.2$ \$/min; morning vehicles depart
+satellite at $t=540$ min (09:00), afternoon at $t=720$ min (12:00).
+\begin{equation}
+  \min\;f_1 = \CFE + \CSE
+  \label{eq:f1}
+\end{equation}
+
+\paragraph{(f2) Total vehicle count minimization.}
+\begin{equation}
+  \min\;f_2 = \sum_{t\in T}\sum_{p\in P}
+    \Bigl(\sum_{r\in\KFE}\delta_r^{\mathrm{FE},t}
+         +\sum_{k\in\KSE}\delta_k^{\mathrm{SE},t,p}\Bigr)
+  \label{eq:f2}
+\end{equation}
+
+\paragraph{(f3) Total carbon emissions minimization.}
+Carbon emissions are computed using the MEET model~\cite{hickman1999}.
+For a 3.5-ton box truck (Table~A24 of~\cite{hickman1999}):
+\begin{align}
+  \varphi(v) &= 110 + 0.000375\,v^3 + \frac{8702}{v}
+  \quad\text{(g CO}_2\text{/km)}
+  \label{eq:phi} \\
+  \psi(v)    &= 1.27 - 0.00235\,v - \frac{1.33}{v}
+  \label{eq:psi}
+\end{align}
+The unit carbon emission is $\varphi(v)\cdot\psi(v)/1000$ (kg CO$_2$/km).
+At the fixed SE speed $\vSE=50$ km/h:
+\[
+  \varphi(50)=330.915\;\text{g/km},\quad
+  \psi(50)=1.1259,\quad
+  \eSE=330.915\times1.1259/1000\approx0.3726\;\text{kg CO}_2\text{/km.}
+\]
+\begin{align}
+  \ESE &= \sum_{i,j\in\NSE}\sum_{k\in\KSE}\sum_{s\in S}\sum_{t\in T}\sum_{p\in P}
+           x_{ij}^{k,s,t,p}\,L_{ij}\,\eSE
+  \label{eq:ESE}\\
+  \EFE &= \sum_{(d,s)}\sum_{r\in\KFE}\sum_{t\in T}
+           y_{ds}^{r,t}\,L_{ds}\,e_{\mathrm{FE}}(\vFE)
+  \label{eq:EFE}
+\end{align}
+\begin{equation}
+  \min\;f_3 = \ESE + \EFE
+  \label{eq:f3}
+\end{equation}
+
+\subsubsection{First-Echelon Constraints}
+
+\begin{align}
+  &\sum_{d\in D}\sum_{r\in\KFE}y_{ds}^{r,t} \ge z_s^{t,p},
+  &&\forall\,s\in S,\,t\in T,\,p\in P
+  \tag{C1}\label{c1}\\
+  &\sum_{d\in D,s\in S}y_{ds}^{r,t}-\sum_{s\in S,d\in D}y_{sd}^{r,t}=0,
+  &&\forall\,r\in\KFE,\,t\in T
+  \tag{C2}\label{c2}\\
+  &\sum_{d\in D,s\in S}y_{ds}^{r,t}(DD_s^t+DP_s^t)\le\QFE,
+  &&\forall\,r\in\KFE,\,t\in T
+  \tag{C3}\label{c3}\\
+  &f_{ds}^{r,t}\ge 0,
+  &&\forall\,d\in D,s\in S,r\in\KFE,t\in T
+  \tag{C4a}\label{c4a}\\
+  &\sum_{d\in D}f_{ds}^{r,t}-\sum_{d\in D}f_{sd}^{r,t}
+    =y_{ds}^{r,t}(DD_s^t+DP_s^t),
+  &&\forall\,s\in S,r\in\KFE,t\in T
+  \tag{C4b}\label{c4b}\\
+  &z_s^{t,p}\le\sum_{d\in D}\sum_{r\in\KFE}y_{ds}^{r,t},
+  &&\forall\,s\in S,t\in T,p\in P
+  \tag{C5}\label{c5}\\
+  &a_d\sum_{s\in S}y_{ds}^{r,t}\le ST_{dr}^t\le b_d\sum_{s\in S}y_{ds}^{r,t},
+  &&\forall\,d\in D,r\in\KFE,t\in T
+  \tag{C6}\label{c6}\\
+  &ST_{dr}^t+TT_{ds}-M(1-y_{ds}^{r,t})\le VT_{sr}^t
+    \le ST_{dr}^t+TT_{ds}+M(1-y_{ds}^{r,t}),
+  &&\forall\,d,s,r\in\KFE,t
+  \tag{C7}\label{c7}\\
+  &y_{ds}^{r,t}\in\{0,1\},\quad
+  f_{ds}^{r,t}\ge 0,\quad
+  z_s^{t,p}\in\{0,1\},
+  &&\forall\,d,s,r,t,p
+  \tag{C8}\label{c8}
+\end{align}
+
+\subsubsection{Second-Echelon Constraints}
+
+\begin{align}
+  &\sum_{j\in\NSE}\sum_{k\in\KSE}x_{ij}^{k,s,t,p}=1,
+  &&\forall\,i\in C,s\in S,t\in T,p\in P
+  \tag{C9}\label{c9}\\
+  &\sum_{j\in\NSE}x_{ij}^{k,s,t,p}-\sum_{j\in\NSE}x_{ji}^{k,s,t,p}=0,
+  &&\forall\,i\in\NSE,k\in\KSE,s,t,p
+  \tag{C10}\label{c10}\\
+  &\sum_{i\in C,j\in\NSE}x_{ij}^{k,s,t,p}(DD_i^{t,p}+DP_i^{t,p})\le\QSE,
+  &&\forall\,k\in\KSE,s\in S,t\in T,p\in P
+  \tag{C11}\label{c11}\\
+  &\sum_{j\in C}x_{sj}^{k,s,t,p}=\sum_{j\in C}x_{js}^{k,s,t,p}\le 1,
+  &&\forall\,k\in\KSE,s\in S,t\in T,p\in P
+  \tag{C12}\label{c12}\\
+  &u_i^{k,s,t,p}-u_j^{k,s,t,p}+\QSE\,x_{ij}^{k,s,t,p}\le\QSE-DD_j^{t,p},
+  &&\forall\,i,j\in C,k,s,t,p
+  \tag{C13a}\label{c13a}\\
+  &DD_i^{t,p}\le u_i^{k,s,t,p}\le\QSE,
+  &&\forall\,i\in C,k,s,t,p
+  \tag{C13b}\label{c13b}\\
+  &A_j^{k,s,t,p}\ge A_i^{k,s,t,p}+\frac{L_{ij}}{\vSE}
+    -M(1-x_{ij}^{k,s,t,p}),
+  &&\forall\,i,j\in C,k,s,t,p
+  \tag{C14}\label{c14}\\
+  &a_s^{t,p}\sum_{j\in C}x_{sj}^{k,s,t,p}\le A_s^{k,s,t,p}
+    \le b_s^{t,p}\sum_{j\in C}x_{sj}^{k,s,t,p},
+  &&\forall\,k\in\KSE,s,t,p
+  \tag{C15}\label{c15}\\
+  &x_{ij}^{k,s,t,p}\in\{0,1\},\quad
+  u_i^{k,s,t,p}\ge 0,\quad
+  A_i^{k,s,t,p}\ge 0.
+  \tag{C16}\label{c16}
+\end{align}
+
+\subsection{Model Summary}
+
+The complete formulation is $\min\;\{f_1,f_2,f_3\}$ subject to
+\eqref{c1}--\eqref{c16}.  The problem is NP-hard (even single-echelon CVRP
+is NP-hard); the HNSGA-III + Gurobi decomposition described in \cref{sec:alg}
+provides a practically scalable solution approach.
+
+% ============================================================
+\section{Proposed Algorithm: HNSGA-III}
+\label{sec:alg}
+% ============================================================
+
+This section describes HNSGA-III in detail, covering solution encoding,
+the four enhancements over standard NSGA-III, and the complete algorithmic
+procedure including the Gurobi-based FE solver.
+
+\subsection{Overview}
+
+HNSGA-III builds upon the standard NSGA-III reference-point
+framework~\cite{deb2014nsga3} and introduces four targeted enhancements
+described in Sections~\ref{sec:init}--\ref{sec:vns}.  The algorithm operates
+on the SE routing layer; FE routing is solved exactly by Gurobi MILP after SE
+routes are finalized.
+
+\subsection{Solution Encoding and Parameters}
+
+Each chromosome is a permutation of customer IDs assigned to a given satellite
+in a given time period.  For $n_s$ satellites and two daily periods,
+$2n_s$ independent populations of size $N_{\mathrm{pop}}=30$ are maintained.
+\Cref{tab:params} summarizes all algorithm parameters.
+
+\begin{table}[ht]
+\centering
+\caption{Algorithm Parameter Settings}
+\label{tab:params}
+\begin{tblr}{
+    colspec = {l c},
+}
+\hline[0.08em]
+Parameter & Value \\ \hline[0.05em]
+Population size ($N_{\mathrm{pop}}$)              & 30 \\
+Number of generations                             & 1{,}000 \\
+Crossover probability ($cp$) --- Instances 1--10  & 0.70 \\
+Crossover probability ($cp$) --- Instances 11--20 & 0.55 \\
+Mutation probability ($mp$) --- Instances 1--10   & 0.70 \\
+Mutation probability ($mp$) --- Instances 11--20  & 0.80 \\
+SE vehicle capacity $\QSE$                        & 400 kg \\
+SE vehicle speed $\vSE$                           & 50 km/h \\
+FE vehicle capacity $\QFE$                        & 4{,}000 kg \\
+Stagnation threshold $\tau$ (VNS trigger)         & 5 generations \\
+Independent runs per instance                     & 10 \\ \hline[0.08em]
+\end{tblr}
+\end{table}
+
+\subsection{Population Initialization: Nearest-Neighbor Heuristic}
+\label{sec:init}
+
+For each individual, a random customer is selected as the starting point.
+The algorithm iteratively appends the nearest unvisited customer (by Euclidean
+distance) until all customers are visited, forming an NN tour.  Because each
+individual begins from a different starting customer, the $N_{\mathrm{pop}}$
+individuals collectively cover diverse geographic entry points while
+individually maintaining local proximity structure.  \Cref{alg:nn} describes the procedure.
+
+\begin{algorithm}[ht]
+\caption{NN Initialization for one population}
+\label{alg:nn}
+\begin{algorithmic}[1]
+\Require Customer set $C$, coordinate lookup \textit{coord}, target size
+         $N_{\mathrm{pop}}$
+\Ensure Initial population $P$
+\State $P \leftarrow \emptyset$;\quad \textit{attempts} $\leftarrow 0$
+\While{$|P| < N_{\mathrm{pop}}$ \textbf{and} \textit{attempts}
+       $< 30\cdot N_{\mathrm{pop}}$}
+  \State $\textit{start} \leftarrow \mathrm{random}(C)$
+  \State $\textit{seq} \leftarrow [\textit{start}]$;\quad
+         $\textit{unvisited} \leftarrow C \setminus \{\textit{start}\}$
+  \While{$\textit{unvisited} \neq \emptyset$}
+    \State $\textit{next} \leftarrow
+           \arg\min_{u\in\textit{unvisited}}\mathrm{dist}(\textit{seq.last},u)$
+    \State $\textit{seq}.\mathrm{append}(\textit{next})$;\quad
+           $\textit{unvisited} \leftarrow \textit{unvisited}\setminus
+           \{\textit{next}\}$
+  \EndWhile
+  \If{$\textit{seq} \notin P$}
+    \State $P \leftarrow P \cup \{\textit{seq}\}$
+  \EndIf
+  \State $\textit{attempts} \leftarrow \textit{attempts}+1$
+\EndWhile
+\While{$|P| < N_{\mathrm{pop}}$}
+  \State $P \leftarrow P \cup \{\mathrm{random\_shuffle}(C)\}$
+\EndWhile
+\State \Return $P$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Crossover: Order-Based Crossover (OBX)}
+
+OBX selects a random contiguous segment $[a,b]$ from parent $p_1$, copies it
+to offspring $c_1$ at the same positions, then fills remaining positions with
+customers from $p_2$ in the order they appear, skipping already-placed
+customers.  Offspring $c_2$ is generated symmetrically.
+
+\subsection{Hybrid Mutation Operator}
+
+Two mutation operators are defined, each selected with equal probability (50\%)
+when mutation is triggered:
+\begin{itemize}
+  \item \textbf{3-Point Inversion (exploration)}: Three positions $i<j<k$ are
+        selected; the subsequence $[i,k]$ is reversed.  Produces macro-level
+        structural changes.
+  \item \textbf{2-Point Swap (exploitation)}: Two positions $a$ and $b$ are
+        selected and their customers are exchanged.  Produces fine-grained
+        local adjustment.
+\end{itemize}
+
+\subsection{Selection: NSGA-III Reference-Point Framework}
+
+The combined parent--offspring pool is reduced to $N_{\mathrm{pop}}$ using
+standard NSGA-III~\cite{deb2014nsga3}: (1)~non-dominated sorting partitions
+individuals into fronts $F_1,F_2,\ldots$; (2)~fronts are admitted until the
+population would exceed $N_{\mathrm{pop}}$; (3)~reference points on the
+normalized hyperplane govern niching selection in the critical last front.
+
+\subsection{Embedded 2-opt Local Search}
+
+After crossover and mutation, a 2-opt improvement is applied to every
+offspring: decode the chromosome into routes, select one route at random,
+reverse a subsequence $[a,b]$ if it yields a strictly better non-duplicate
+solution.  Applying 2-opt to \emph{all} offspring (rather than only elites)
+ensures each candidate receives route-level refinement before competing in
+selection.
+
+\subsection{Stagnation-Triggered Variable Neighborhood Search}
+\label{sec:vns}
+
+A stagnation counter per satellite-period block is incremented every
+generation in which the best-individual cost fails to improve.  When the counter reaches
+$\tau=5$, a two-step VNS is applied to the current best individual:
+\begin{enumerate}
+  \item \textbf{Exchange}: two customers within the same route are swapped.
+  \item \textbf{Relocate}: one customer is removed and reinserted at a
+        different position.
+\end{enumerate}
+If either step produces a strictly better non-duplicate solution, it replaces
+the current best and the stagnation counter resets.
+
+\subsection{Complete Algorithm}
+
+\Cref{alg:hnsga3} presents the complete HNSGA-III procedure.
+
+\begin{algorithm}[ht]
+\caption{HNSGA-III for 2E-MD-MD-MP-CVRP-SPD}
+\label{alg:hnsga3}
+\begin{algorithmic}[1]
+\Require Instance data, parameters ($N_{\mathrm{pop}},cp,mp,\tau,
+         \mathrm{num\_gen}$)
+\Ensure Best SE routes per satellite-period; FE cost
+\State Cluster customers to satellites via K-Means
+\State Partition customers into morning / afternoon periods
+\For{each satellite $s$ and period $p$}
+  \State $P_{s,p} \leftarrow \mathrm{NN\_Initialize}(\mathrm{customers}_{s,p},
+         N_{\mathrm{pop}})$
+         \quad\Comment{see \cref{alg:nn}}
+\EndFor
+\State $\mathrm{stag}_{s,p} \leftarrow 0$ for all $s,p$
+\For{$\mathrm{gen} = 1$ \To $\mathrm{num\_gen}$}
+  \For{each population $P_{s,p}$}
+    \State $\mathrm{best\_before} \leftarrow \min\mathrm{cost}(P_{s,p})$
+    \If{$\mathrm{rand}() < cp$}
+      \State $O \leftarrow \mathrm{OBX}(P_{s,p})$
+    \EndIf
+    \State $O \leftarrow O \cup \mathrm{HybridMutate}(P_{s,p},mp)$
+    \State $O \leftarrow \mathrm{2\text{-}opt}(O)$
+    \State $P_{s,p} \leftarrow \mathrm{NSGA3\_Select}(P_{s,p}\cup O,
+           N_{\mathrm{pop}})$
+    \State $\mathrm{best\_after} \leftarrow \min\mathrm{cost}(P_{s,p})$
+    \If{$\mathrm{best\_after} < \mathrm{best\_before}$}
+      \State $\mathrm{stag}_{s,p} \leftarrow 0$
+    \Else
+      \State $\mathrm{stag}_{s,p} \leftarrow \mathrm{stag}_{s,p}+1$
+    \EndIf
+    \If{$\mathrm{stag}_{s,p} \ge \tau$}
+      \State $P_{s,p} \leftarrow \mathrm{VNS}(P_{s,p})$;\quad
+             $\mathrm{stag}_{s,p} \leftarrow 0$
+    \EndIf
+  \EndFor
+\EndFor
+\State Extract best solution from each $P_{s,p}$
+\State Compute satellite demands from SE routes
+\State $\mathrm{FE\_cost} \leftarrow
+       \mathrm{Gurobi\_MILP}(\mathrm{depots},\mathrm{satellites},
+       \mathrm{demands})$
+\State \Return SE routes, FE cost
+\end{algorithmic}
+\end{algorithm}
+
+% ============================================================
+\section{Computational Experiments}
+\label{sec:exp}
+% ============================================================
+
+This section describes the experimental setup, benchmark instances, compared
+algorithms, and parameter settings, followed by four complementary performance
+analyses covering sensitivity, cost comparison, Pareto front quality, and
+statistical significance.
+
+\subsection{Experimental Setup}
+
+\subsubsection{Benchmark Instances}
+
+Twenty benchmark instances are used: Instances~1--10 have 50 customers,
+2 satellites, and 1 depot; Instances~11--20 have 80 customers, 3 satellites,
+and 1 depot.  Customer coordinates, demands, and soft service-time windows
+are generated synthetically over a multi-day, two-period horizon.
+
+\subsubsection{Compared Algorithms}
+
+Three algorithms are compared:
+\begin{enumerate}
+  \item \textbf{HNSGA-III} (Proposed): full algorithm as described in
+        \cref{sec:alg}.
+  \item \textbf{NK-HNSGA-III} (Ablation Baseline): HNSGA-III with NN
+        initialization replaced by K-Medoids clustering; all other components
+        are identical.
+  \item \textbf{NSGA-III} (Standard Baseline): reference-point NSGA-III
+        \cite{deb2014nsga3} with random initialization and no local search.
+\end{enumerate}
+
+\subsubsection{Implementation and Parameter Settings}
+
+All algorithms are implemented in Python~3.  FE routing is solved by Gurobi
+MILP solver (version~10.0).  All experiments are conducted on an Intel Core i7-11800H @
+2.30~GHz (8 cores / 16 threads) with 32~GB RAM and an NVIDIA GeForce RTX~3070
+Laptop GPU\@.  Each algorithm is executed 10 independent times per instance.
+Parameters follow \cref{tab:params}; NSGA-III uses $N_{\mathrm{pop}}=30$ and
+1{,}000 generations.
+
+\subsection{Parameter Sensitivity Analysis}
+
+\Cref{tab:sensitivity} reports the average best cost over 10 runs for two
+representative instances while sweeping crossover probability~$cp$ and
+mutation probability~$mp$.
+
+\begin{table}[ht]
+\centering
+\caption{Parameter Sensitivity Analysis of HNSGA-III}
+\label{tab:sensitivity}
+\small
+\begin{tblr}{
+    colspec = {c r r r r r r r r},
+}
+\hline[0.08em]
+\SetCell[r=2]{c} Scenario
+  & \SetCell[c=4]{c} Test~A (50 customers, Inst.~1) & & &
+  & \SetCell[c=4]{c} Test~B (80 customers, Inst.~11) & & & \\
+\cline{2-5}\cline{6-9}
+  & $cp$ & Cost(\$) & $mp$ & Cost(\$)
+  & $cp$ & Cost(\$) & $mp$ & Cost(\$) \\ \hline[0.05em]
+1  & 0.85 & 6339.1 & 0.1 & 6340.1 & 0.85 & 9315.9 & 0.1 & 9406.9 \\
+2  & 0.80 & 6327.1 & 0.2 & 6341.1 & 0.80 & 9290.9 & 0.2 & 9421.9 \\
+3  & 0.75 & 6339.1 & 0.3 & 6326.1 & 0.75 & 9310.9 & 0.3 & 9315.9 \\
+4  & \textbf{*0.70} & \textbf{*6325.1} & 0.4 & 6326.1
+   & 0.70 & 9328.9 & 0.4 & 9267.9 \\
+5  & 0.65 & 6326.1 & 0.5 & 6337.1 & 0.65 & 9322.9 & 0.5 & 9352.9 \\
+6  & 0.60 & 6328.1 & 0.6 & 6327.1 & 0.60 & 9320.9 & 0.6 & 9355.9 \\
+7  & 0.55 & 6325.1 & \textbf{*0.7} & \textbf{*6325.1}
+   & \textbf{*0.55} & \textbf{*9253.9} & 0.7 & 9354.9 \\
+8  & 0.50 & 6326.1 & 0.8 & 6339.1 & 0.50 & 9267.9
+   & \textbf{*0.8} & \textbf{*9253.9} \\
+9  & 0.45 & 6337.1 & 0.9 & 6325.1 & 0.45 & 9377.9 & 0.9 & 9322.9 \\
+10 & 0.40 & 6326.1 & 1.0 & 6337.1 & 0.40 & 9326.9 & 1.0 & 9369.9 \\
+\hline[0.08em]
+\SetCell[c=9]{l} \small * denotes best setting (lowest cost) in each column. \\
+\end{tblr}
+\end{table}
+
+\noindent The selected parameters are: Instances~1--10: $cp=0.70$, $mp=0.70$;
+Instances~11--20: $cp=0.55$, $mp=0.80$.
+
+\subsection{Algorithm Performance Comparison}
+
+\subsubsection{HNSGA-III Detailed Results}
+
+\Cref{tab:detail} presents per-instance results.  CO$_2$\,avg reports the
+total CO$_2$ accumulated across all SE/FE routes (kg), computed via MEET by
+multiplying $\varphi(v)\cdot\psi(v)$ (g/km) by route distance and dividing
+by 1000 to convert to kilograms.
+
+\begin{table}[ht]
+\centering
+\caption{HNSGA-III Detailed Results (10 runs per instance)}
+\label{tab:detail}
+\small
+\begin{tblr}{
+    colspec = {c r r r r r r r},
+}
+\hline[0.08em]
+Inst & $cp$ & $mp$ & Cost$_{\min}$(\$) & Cost$_{\text{avg}}$(\$)
+     & NV$_{\text{avg}}$ & CO$_2$\,avg (kg) & RT$_{\text{avg}}$ (s) \\
+\hline[0.05em]
+ 1 & 0.70 & 0.70 &  6327.1 &  6349.8 & 6.0 & 2662.99 &  53.8 \\
+ 2 & 0.70 & 0.70 &  6243.3 &  6333.7 & 5.0 & 2550.92 &  63.8 \\
+ 3 & 0.70 & 0.70 &  8013.0 &  8137.8 & 5.0 & 4417.07 &  61.0 \\
+ 4 & 0.70 & 0.70 &  6629.9 &  6643.0 & 5.0 & 2286.95 &  54.2 \\
+ 5 & 0.70 & 0.70 &  5704.5 &  5787.4 & 6.0 & 2272.82 &  55.6 \\
+ 6 & 0.70 & 0.70 & 11517.1 & 11640.7 & 5.0 & 5206.60 &  62.9 \\
+ 7 & 0.70 & 0.70 & 11438.5 & 11521.9 & 5.0 & 5896.72 &  60.0 \\
+ 8 & 0.70 & 0.70 &  7116.5 &  7286.0 & 6.0 & 3467.53 &  52.4 \\
+ 9 & 0.70 & 0.70 &  8994.0 &  9196.6 & 5.0 & 4290.86 &  61.7 \\
+10 & 0.70 & 0.70 &  9266.1 &  9382.8 & 5.0 & 3874.07 &  57.6 \\
+\hline[0.05em]
+11 & 0.55 & 0.80 &  9342.9 &  9425.1 & 7.0 & 3470.77 &  89.7 \\
+12 & 0.55 & 0.80 & 12830.9 & 12873.9 & 8.0 & 4947.96 &  90.7 \\
+13 & 0.55 & 0.80 & 12995.9 & 13239.4 & 8.0 & 5001.63 &  89.3 \\
+14 & 0.55 & 0.80 & 14124.6 & 14226.6 & 8.0 & 6413.53 & 101.3 \\
+15 & 0.55 & 0.80 & 12322.7 & 12526.1 & 8.0 & 4827.86 &  89.7 \\
+16 & 0.55 & 0.80 & 15255.4 & 15332.2 & 7.0 & 7139.80 & 102.1 \\
+17 & 0.55 & 0.80 & 13335.8 & 13619.2 & 8.0 & 5308.91 &  82.8 \\
+18 & 0.55 & 0.80 & 14211.5 & 14308.6 & 8.0 & 5403.76 &  93.2 \\
+19 & 0.55 & 0.80 & 13839.3 & 13976.2 & 8.0 & 5403.88 &  98.4 \\
+20 & 0.55 & 0.80 &  9863.0 & 10103.5 & 7.0 & 3861.22 &  86.4 \\
+\hline[0.05em]
+\textbf{Avg} & & & & \textbf{10595.5} & \textbf{6.5}
+             & \textbf{4359.38} & \textbf{75.3} \\ \hline[0.08em]
+\end{tblr}
+\end{table}
+
+\subsubsection{Three-Algorithm Cost Comparison}
+
+\Cref{tab:comparison} compares average cost and standard deviation per
+instance across all three algorithms.
+
+\begin{table}[ht]
+\centering
+\caption{Cost Comparison: HNSGA-III vs NK-HNSGA-III vs NSGA-III}
+\label{tab:comparison}
+\small
+\begin{tblr}{
+    colspec = {c r r r r r r r r r},
+    colsep = 3pt,
+}
+\hline[0.08em]
+\SetCell[r=2]{c} Inst
+  & \SetCell[c=3]{c} HNSGA-III & &
+  & \SetCell[c=3]{c} NK-HNSGA-III & &
+  & \SetCell[c=3]{c} NSGA-III & & \\
+\cline{2-4}\cline{5-7}\cline{8-10}
+  & Best & Avg & Std & Best & Avg & Std & Best & Avg & Std \\
+\hline[0.05em]
+ 1 &  6339.1 &  6340.9 &   2.5 &  6337.1 &  6395.7 &  65.3 &  6339.1 &  6416.1 &  73.7 \\
+ 2 &  6244.3 &  6297.7 &  67.2 &  6217.3 &  6300.9 &  91.3 &  6343.3 &  6382.3 &  27.5 \\
+ 3 &  8028.0 &  8123.6 &  68.5 &  8016.0 &  8134.6 & 231.2 &  8007.0 &  8051.4 &  58.9 \\
+ 4 &  6629.9 &  6639.1 &   8.2 &  6371.9 &  6587.1 & 120.5 &  6289.9 &  6439.9 & 193.8 \\
+ 5 &  5666.5 &  5752.5 &  56.4 &  5717.5 &  5804.5 &  49.0 &  5731.5 &  5812.9 & 113.8 \\
+ 6 & 11596.1 & 11677.3 & 134.7 & 11593.1 & 11611.7 &  23.2 & 11593.1 & 11685.9 & 181.8 \\
+ 7 & 11299.5 & 11429.3 &  90.4 & 11299.5 & 11390.1 &  51.2 & 11534.5 & 11617.5 &  49.2 \\
+ 8 &  7109.5 &  7225.5 & 136.2 &  7111.5 &  7275.7 & 148.9 &  7099.5 &  7362.3 & 249.9 \\
+ 9 &  8994.0 &  9168.8 & 220.9 &  8996.0 &  9212.0 & 205.7 &  9010.0 &  9109.0 & 139.6 \\
+10 &  9285.1 &  9390.3 & 135.0 &  9266.1 &  9360.9 & 113.1 &  9285.1 &  9339.9 &  54.9 \\
+\hline[0.05em]
+11 &  9244.9 &  9360.3 &  77.8 &  9218.9 &  9376.7 &  90.5 &  9268.9 &  9507.7 & 238.2 \\
+12 & 12830.9 & 12900.5 & 124.4 & 12876.9 & 12920.5 &  76.7 & 12853.9 & 13060.7 & 242.4 \\
+13 & 13039.9 & 13265.7 & 141.7 & 12660.9 & 13047.5 & 330.6 & 12765.9 & 13324.5 & 508.8 \\
+14 & 14124.6 & 14152.6 &  36.2 & 14046.6 & 14212.0 & 124.1 & 14017.6 & 14488.6 & 347.6 \\
+15 & 12405.7 & 12502.3 &  68.6 & 12333.7 & 12518.9 & 168.9 & 12488.7 & 12732.9 & 163.2 \\
+16 & 15261.4 & 15323.2 &  45.5 & 15212.4 & 15255.6 &  41.8 & 15286.4 & 15586.2 & 331.0 \\
+17 & 13396.8 & 13556.4 & 234.9 & 13390.8 & 13689.6 & 354.4 & 13390.8 & 13852.2 & 288.1 \\
+18 & 14063.5 & 14174.7 & 107.7 & 13987.5 & 14122.1 & 183.7 & 14014.5 & 14196.7 & 224.5 \\
+19 & 13829.3 & 13953.3 &  78.4 & 13940.3 & 14000.9 &  48.2 & 14183.3 & 14437.1 & 307.4 \\
+20 &  9990.0 & 10116.0 &  95.5 & 10089.0 & 10160.0 &  74.5 & 10029.0 & 10245.0 & 147.2 \\
+\hline[0.05em]
+\textbf{Avg} & & \textbf{10567.5} & \textbf{96.5}
+             & & \textbf{10568.8} & \textbf{129.6}
+             & & \textbf{10682.4} & \textbf{197.1} \\ \hline[0.08em]
+\end{tblr}
+\end{table}
+
+HNSGA-III achieves the lowest average cost (10{,}567.5), outperforming
+NSGA-III by 1.1\%.  The standard deviation is reduced by 51.0\%
+(96.5 vs.\ 197.1), and HNSGA-III outperforms NSGA-III on average cost
+in 16 of 20 instances.
+
+\subsection{Pareto Front Quality Metrics}
+
+\Cref{tab:pareto} compares six quality metrics averaged across all
+20 instances.
+
+\begin{table}[ht]
+\centering
+\caption{Pareto Front Quality Metrics (averages across 20 instances)}
+\label{tab:pareto}
+\begin{tblr}{
+    colspec = {l r r r r r r},
+}
+\hline[0.08em]
+Algorithm & Avg Cost & Avg Std & Avg SP$\downarrow$
+          & Avg HV$\uparrow$ & Avg GD$\downarrow$ & Avg IGD$\downarrow$ \\
+\hline[0.05em]
+HNSGA-III    & 10{,}567.5 &  96.5 & 0.1535 & 0.7995 & 0.1956 & 0.2174 \\
+NK-HNSGA-III & 10{,}568.8 & 129.6 & 0.1549 & 0.7540 & 0.2211 & 0.2018 \\
+NSGA-III     & 10{,}682.4 & 197.1 & 0.1924 & 0.7635 & 0.3076 & 0.2087 \\ \hline[0.08em]
+\end{tblr}
+\end{table}
+
+HNSGA-III achieves superior performance on five of six metrics relative to
+NSGA-III\@.  The HV improvement (+4.7\%) confirms broader Pareto front
+coverage; the GD improvement ($-36.4\%$) shows solutions are consistently
+closer to the best-known frontier.  Comparing HNSGA-III with NK-HNSGA-III
+isolates the effect of NN initialization: despite nearly identical average
+cost (difference $<0.01\%$), HNSGA-III achieves substantially better
+stability (Std: 96.5 vs.\ 129.6), hypervolume (0.7995 vs.\ 0.7540), and
+generational distance (0.1956 vs.\ 0.2211).
+
+\subsection{Statistical Analysis}
+
+Mann-Whitney U tests (two-sided, $\alpha=0.05$) are applied to the 10 cost
+samples of HNSGA-III and NSGA-III per instance.
+
+\begin{table}[ht]
+\centering
+\caption{Mann-Whitney U Test: HNSGA-III vs NSGA-III (significant instances only)}
+\label{tab:stat}
+\begin{tblr}{
+    colspec = {c r l l},
+}
+\hline[0.08em]
+Instance & $p$-value & Significant? & Direction \\ \hline[0.05em]
+7          & 0.0119  & *            & HNSGA-III better \\
+19         & 0.0079  & *            & HNSGA-III better \\
+All others & $>0.05$ & ---          & --- \\ \hline[0.08em]
+\SetCell[c=4]{l} \small * $p<0.05$ \\
+\end{tblr}
+\end{table}
+
+Statistically significant improvements are confirmed in 2 of 20 instances.
+The Set Coverage (SC) metric shows that 58.0\% of NSGA-III's non-dominated
+solutions are covered by HNSGA-III, versus only 46.0\% in the reverse
+direction, a directional advantage of 12 percentage points.
+
+\subsection{Satellite Configuration Analysis}
+
+\Cref{tab:satellite} reports the minimum-cost satellite count (1, 2, or
+3 satellites open) for each of 30 planning days.
+
+\begin{table}[ht]
+\centering
+\caption{Optimal Number of Active Satellites per Planning Day (HNSGA-III)}
+\label{tab:satellite}
+\small
+\begin{tblr}{
+    colspec = {c r r r r},
+}
+\hline[0.08em]
+Day & Sat=1 (\$) & Sat=2 (\$) & Sat=3 (\$) & Optimal \\ \hline[0.05em]
+ 1 &  *4324.7 &  5102.0 &  4559.8 & 1 \\
+ 2 &  7352.5  & *5757.8 &  6765.9 & 2 \\
+ 3 &  4896.0  &  4900.1 & *4304.4 & 3 \\
+ 4 &  5180.2  & *4805.3 &  5759.6 & 2 \\
+ 5 & *5121.7  &  6030.5 &  5808.1 & 1 \\
+ 6 &  6076.7  & *5478.1 &  6416.4 & 2 \\
+ 7 &  5124.2  &  6289.5 & *4825.9 & 3 \\
+ 8 &  7216.9  &  8612.8 & *6925.1 & 3 \\
+ 9 & *7005.7  &  8339.8 &  8183.2 & 1 \\
+10 &  6351.5  & *5512.8 &  6569.3 & 2 \\
+11 & *9099.7  & 10495.9 &  9859.7 & 1 \\
+12 &  8751.5  & 10902.7 & *8388.4 & 3 \\
+13 &  8988.2  & *8057.3 &  9581.8 & 2 \\
+14 &  6035.9  & *5970.8 &  7857.3 & 2 \\
+15 &  7445.9  &  8983.5 & *6771.6 & 3 \\
+16 & *8945.7  & 10201.6 &  9103.1 & 1 \\
+17 & *9379.0  & 11229.5 &  9532.3 & 1 \\
+18 &  6913.1  &  6784.3 & *6590.4 & 3 \\
+19 &  8935.2  & 10130.7 & *8599.5 & 3 \\
+20 &*11379.6  & 14687.6 & 12519.2 & 1 \\
+21 &*11080.8  & 13100.5 & 14045.3 & 1 \\
+22 & 11021.5  & 11733.9 & *8685.9 & 3 \\
+23 &*11269.2  & 12508.1 & 12215.5 & 1 \\
+24 & 13387.6  & 14106.5 & *9477.4 & 3 \\
+25 &  8007.1  &  7175.1 & *7097.0 & 3 \\
+26 &*10667.8  & 11552.2 & 11817.6 & 1 \\
+27 &*12104.1  & 13799.2 & 13255.6 & 1 \\
+28 & 11929.6  & 12271.2 & *8499.7 & 3 \\
+29 & *9924.8  & 12867.8 & 10755.7 & 1 \\
+30 &*11938.9  & 13215.1 & 12532.9 & 1 \\
+\hline[0.05em]
+\SetCell[c=5]{l} \textbf{Distribution:} Sat=1: 13 days (43\%),
+  Sat=2: 6 days (20\%), Sat=3: 11 days (37\%) \\
+\hline[0.08em]
+\SetCell[c=5]{l} \small * denotes minimum cost for that day. \\
+\end{tblr}
+\end{table}
+
+The optimal number of active satellites varies considerably: Sat=1 is optimal
+on 43\% of days, Sat=3 on 37\%, and Sat=2 on 20\%, demonstrating that the
+optimal satellite configuration is strongly demand-dependent and cannot be
+fixed a priori.
+
+% ============================================================
+\section{Conclusion}
+\label{sec:conc}
+% ============================================================
+
+This section summarizes the contributions of the study, discusses the
+limitations of the proposed framework, and outlines promising directions for
+future research.
+
+\subsection{Summary of Contributions}
+
+This study addressed the 2E-MD-MD-MP-CVRP-SPD, simultaneously minimizing
+total transportation cost ($f_1$), total vehicle count ($f_2$), and total
+carbon emissions ($f_3$).  HNSGA-III was proposed with four targeted
+enhancements over standard NSGA-III: NN initialization, hybrid mutation
+(3-point inversion + 2-point swap), embedded 2-opt on all offspring, and
+stagnation-triggered VNS ($\tau=5$).  Carbon emissions were quantified
+using the MEET model~\cite{hickman1999}; FE routing was solved exactly by
+Gurobi MILP after SE routing was optimized by HNSGA-III\@.
+
+Key experimental findings from 20 benchmark instances:
+\begin{itemize}
+  \item \textbf{Cost and stability}: HNSGA-III achieves the lowest average
+        cost (\$10{,}567.5), outperforming NSGA-III by 1.1\% and reducing
+        solution variance by 51.0\% (Std: 96.5 vs.\ 197.1).
+  \item \textbf{Pareto front quality}: Superior HV ($+4.7\%$), better SP
+        ($-20.2\%$), and 36.4\% lower GD than NSGA-III, confirming broader
+        and better-distributed frontier coverage.
+  \item \textbf{Dominance coverage}: 58.0\% of NSGA-III's non-dominated
+        solutions are covered by HNSGA-III vs.\ 46.0\% in the reverse
+        direction.
+  \item \textbf{NN initialization contribution}: HNSGA-III vs.\
+        NK-HNSGA-III shows nearly identical average cost ($<0.01\%$
+        difference) but substantially better stability (Std: 96.5 vs.\
+        129.6), HV (0.7995 vs.\ 0.7540), and GD (0.1956 vs.\ 0.2211).
+  \item \textbf{Satellite configuration}: The optimal number of active
+        satellites varies strongly by day (Sat=1: 43\%, Sat=2: 20\%,
+        Sat=3: 37\%), demonstrating the necessity of the multi-period
+        formulation.
+\end{itemize}
+
+\subsection{Limitations}
+
+(1)~Soft time windows; hard-window extension would require additional
+feasibility repair mechanisms.  (2)~Synthetic benchmarks only; real-world
+validation remains an important future step.  (3)~Sequential FE-SE
+decomposition may yield suboptimal solutions relative to joint optimization
+in some cases.  (4)~Homogeneous fleet assumption; heterogeneous or electric
+vehicles are not modeled.  (5)~Sample size $n=10$ limits statistical power.
+
+\subsection{Future Research Directions}
+
+(1)~Hard time-window extension with feasibility-aware decoding.
+(2)~Real-world validation on empirical logistics datasets.
+(3)~Joint FE-SE co-evolutionary or bi-level optimization.
+(4)~Green vehicle integration (electric fleets, range constraints, charging
+schedules).
+(5)~Dynamic/stochastic demand via robust or stochastic optimization.
+(6)~Enhanced VNS neighborhoods (e.g., inter-route exchange, cross-satellite
+relocation).
+
+% ============================================================
+\printbibliography
+% ============================================================
+
+\end{document}
