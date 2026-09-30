@@ -9,7 +9,7 @@ venv/
 .RData
 .Rproj.user/
 
-# LaTeX 編譯產物（根目錄的 .log 為編譯記錄；子資料夾內的實驗 log 會保留）
+# LaTeX build files (root-level .log files are LaTeX logs; experiment logs in subfolders are kept)
 *.aux
 *.bbl
 *.bcf
@@ -22,16 +22,16 @@ venv/
 *.toc
 /*.log
 
-# 參考文獻 PDF 有版權，不公開上傳（檔案保留在本機）
+# Reference PDFs are copyrighted; keep them local only
 /references/*.pdf
 
-# Office 開啟檔案時產生的暫存鎖定檔
+# Office lock files created while a document is open
 ~$*
 
-# 作業系統
+# OS files
 Thumbs.db
 desktop.ini
 .DS_Store
 
-# Claude Code 本機設定
+# Claude Code local settings
 .claude/settings.local.json

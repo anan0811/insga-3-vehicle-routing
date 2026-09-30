@@ -2,7 +2,7 @@
 
 Algorithms:
   INSGA3   : 論文/INSGA-III/INSGA3_optsat_RAW.TXT
-  NSGA-III : 論文/NSGA-III/廢案/Instance_PURE_NSGA3_RAW.TXT
+  NSGA-III : 論文/NSGA-III/deprecated/Instance_PURE_NSGA3_RAW.TXT
   NSGA-II  : 論文/NSGA-II/Instance_PURE_NSGA2_RAW.TXT
   MOVNS    : 論文/MOVNS/MOVNS_instance_RAW.TXT
 
@@ -25,13 +25,13 @@ from __future__ import annotations
 import math, re
 from pathlib import Path
 
-HERE     = Path(__file__).resolve().parent   # 論文/實驗/
+HERE     = Path(__file__).resolve().parent   # 論文/experiments/
 ROOT     = HERE.parent                       # 論文/
 OUTPUT   = HERE / "Pareto_metrics_4alg.TXT"
 
 ALG_FILES = {
     "INSGA3":   ROOT / "INSGA-III" / "INSGA3_optsat_RAW.TXT",
-    "NSGA-III": ROOT / "NSGA-III"  / "廢案" / "Instance_PURE_NSGA3_RAW.TXT",
+    "NSGA-III": ROOT / "NSGA-III"  / "deprecated" / "Instance_PURE_NSGA3_RAW.TXT",
     "NSGA-II":  ROOT / "NSGA-II"   / "Instance_PURE_NSGA2_RAW.TXT",
     "MOVNS":    ROOT / "MOVNS"     / "MOVNS_instance_RAW.TXT",
 }

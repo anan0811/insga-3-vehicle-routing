@@ -17,7 +17,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-HERE       = Path(__file__).resolve().parent           # 論文/實驗/
+HERE       = Path(__file__).resolve().parent           # 論文/experiments/
 EXP_DIR    = HERE.parent.parent / "論文實驗"            # My-paper--main/論文實驗/
 INSGA3_DIR = HERE.parent / "INSGA-III"                 # 論文/INSGA-III/
 
