@@ -36,7 +36,6 @@ A 30-day case study shows that the best number of active satellites changes from
 | `chinese/`, `english/` | Plain-text drafts by chapter (Chinese) and by section (English) |
 | `old-versions/` | Earlier versions of the manuscript |
 | `draft-template-and-guidelines/` | Lab draft template (`wmt-template.sty`) and writing guidelines |
-| `overleaf-error/` | Screenshot of an Overleaf layout issue |
 | `*.xlsx`, `Section3_Notation.txt` | Literature tracking and Section 3 notation |
 
 ## Requirements
